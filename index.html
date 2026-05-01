@@ -608,7 +608,7 @@ async function sendMessage() {
   showTyping();
 
   try {
-    const res = await fetch('.netlify/functions/claude', {
+    const res = await fetch('/.netlify/functions/claude', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
