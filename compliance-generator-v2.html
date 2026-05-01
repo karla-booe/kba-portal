@@ -376,21 +376,21 @@ footer { background: var(--navy); border-top: 1px solid var(--gold-dim); padding
       <div class="field span2" style="margin-bottom:22px">
         <label>Key Features <span style="color:var(--gray-400);letter-spacing:0.05em;text-transform:none;font-size:0.7rem">(select all that apply)</span></label>
         <div class="pills" id="pills">
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="has monthly, annual, or transaction fees"> Has Fees</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="mobile-only channel"> Mobile-Only</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="offers overdraft or revolving credit line"> Overdraft / Credit Line</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="international / cross-border transactions"> International Txns</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="rewards or cashback program"> Rewards / Cashback</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="serves high-risk or thin-file customers"> High-Risk Customers</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="joint marketing with retailer or third party"> Joint Marketing</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="holds or pools consumer funds"> Holds Consumer Funds</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="dispute / chargeback processing"> Dispute Processing</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="automated underwriting or AI credit decisioning"> AI / Automated Underwriting</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="third-party data use for credit decisions"> Third-Party Data</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="paper or electronic statement delivery"> Statement Delivery</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="SMS or email marketing communications"> SMS / Email Marketing</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="debt collection or third-party collections"> Debt Collections</label>
-          <label class="pill" onclick="togglePill(this)"><input type="checkbox" value="cryptocurrency or digital asset integration"> Crypto / Digital Assets</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="has monthly, annual, or transaction fees"> Has Fees</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="mobile-only channel"> Mobile-Only</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="offers overdraft or revolving credit line"> Overdraft / Credit Line</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="international / cross-border transactions"> International Txns</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="rewards or cashback program"> Rewards / Cashback</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="serves high-risk or thin-file customers"> High-Risk Customers</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="joint marketing with retailer or third party"> Joint Marketing</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="holds or pools consumer funds"> Holds Consumer Funds</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="dispute / chargeback processing"> Dispute Processing</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="automated underwriting or AI credit decisioning"> AI / Automated Underwriting</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="third-party data use for credit decisions"> Third-Party Data</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="paper or electronic statement delivery"> Statement Delivery</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="SMS or email marketing communications"> SMS / Email Marketing</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="debt collection or third-party collections"> Debt Collections</label>
+          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="cryptocurrency or digital asset integration"> Crypto / Digital Assets</label>
         </div>
       </div>
 
@@ -476,7 +476,12 @@ const API_KEY = '';
 let generatedData = null;
 let checkTotal = 0, checkDone = 0;
 
-function togglePill(el) { el.classList.toggle('on'); }
+function togglePill(el, event) { 
+  event.preventDefault(); 
+  el.classList.toggle('on'); 
+  const cb = el.querySelector('input');
+  if (cb) cb.checked = el.classList.contains('on');
+}
 function getFeatures() { return [...document.querySelectorAll('#pills .pill.on input')].map(i => i.value); }
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -720,38 +725,27 @@ async function generate() {
   document.getElementById('formCard').style.display = 'none';
   showLoad();
 
-  const prompt = `You are Karla Booe, a senior compliance executive with 20+ years in fintech, payments, and community banking. Generate a comprehensive compliance package as JSON. Return ONLY valid JSON — no markdown, no backticks, no explanation.
+  const prompt = `You are a senior compliance expert. Generate a compliance package as JSON. Return ONLY valid JSON, no markdown, no backticks.
 
-PROGRAM PROFILE:
-- Product: ${product}
-- Operating Model: ${model}
-- Customer Segment: ${segment}
-- Credit Reporting: ${credit}
-- Primary Regulator: ${regulator}
-- Program Stage: ${stage}
-- Features: ${features.length ? features.join(', ') : 'none specified'}
-- Additional Context: ${context || 'none'}
+PROGRAM: Product: ${product} | Model: ${model} | Segment: ${segment} | Credit Reporting: ${credit} | Regulator: ${regulator} | Stage: ${stage} | Features: ${features.length ? features.join(', ') : 'none'} | Context: ${context || 'none'}
 
-REGULATION LIBRARY — select all that genuinely apply to this specific program from this master list:
-Regulation Z (TILA) | Regulation E (EFTA) | Regulation B (ECOA) | Regulation DD (Truth in Savings) | Regulation P (GLB Privacy) | UDAAP (CFPB) | BSA/AML (Bank Secrecy Act) | OFAC / Sanctions Compliance | FCRA (Fair Credit Reporting Act) | FACTA (Fair and Accurate Credit Transactions) | SCRA (Servicemembers Civil Relief Act) | MLA (Military Lending Act) | NACHA / ACH Operating Rules | TCPA (Telephone Consumer Protection Act) | CAN-SPAM Act | Fair Debt Collection Practices Act (FDCPA) | Dodd-Frank Act Section 1033 | State Money Transmission Laws | State Lending Laws / Usury | Network Rules (Visa / Mastercard) | Gramm-Leach-Bliley Act (GLBA) | Electronic Signatures in Global Commerce (E-SIGN) | Americans with Disabilities Act (ADA) — Digital | Community Reinvestment Act (CRA) | RESPA | Section 5 FTC Act | Consumer Financial Protection Act (CFPA)
-
-Return this exact JSON structure:
+Return this JSON structure:
 {
-  "product": "<short product name>",
-  "operatingModel": "<short model name>",
-  "regulator": "<primary regulator short name>",
+  "product": "<short name>",
+  "operatingModel": "<short model>",
+  "regulator": "<regulator>",
   "regulations": [
     {
-      "name": "<Regulation name from master list above>",
-      "description": "<one sentence: what it governs and why it applies to THIS program>",
+      "name": "<regulation name>",
+      "description": "<one sentence>",
       "priority": "high|med|low",
       "requirements": [
         {
-          "requirement": "<short requirement name>",
-          "detail": "<one sentence specific obligation for this program>",
-          "control": "<specific operational control — be concrete and actionable>",
-          "responsibility": "<TSP|Bank|Shared|Program Manager|Legal>",
-          "evidence": "<specific evidence type e.g. Monthly monitoring report>"
+          "requirement": "<name>",
+          "detail": "<one sentence>",
+          "control": "<control>",
+          "responsibility": "<TSP|Bank|Shared>",
+          "evidence": "<evidence type>"
         }
       ]
     }
@@ -761,9 +755,9 @@ Return this exact JSON structure:
       "phase": "<phase name>",
       "items": [
         {
-          "action": "<specific action item>",
-          "detail": "<one sentence — what to do and why>",
-          "owner": "<TSP|Bank|Legal|Ops|Tech|Compliance>"
+          "action": "<action>",
+          "detail": "<one sentence>",
+          "owner": "<owner>"
         }
       ]
     }
@@ -771,7 +765,7 @@ Return this exact JSON structure:
   "bankSummary": {
     "sections": [
       {
-        "title": "<section title>",
+        "title": "<title>",
         "paragraphs": ["<paragraph>"],
         "table": { "headers": ["<col>"], "rows": [["<val>"]] }
       }
@@ -779,15 +773,7 @@ Return this exact JSON structure:
   }
 }
 
-STRICT RULES:
-- Select 5-8 regulations that GENUINELY apply — do not include regulations that don't apply to this specific program
-- For each regulation include 3-5 highly specific, actionable requirements
-- Checklist must have exactly 4 phases tailored to the program stage: ${stage}
-- Each phase must have 5-7 specific action items
-- Bank summary sections: Program Overview | Regulatory Scope & Applicability | TSP vs Bank Responsibility Matrix (TABLE with headers: Compliance Area, TSP Responsible, Bank Responsible, Shared Responsibility) | Compliance Infrastructure & Controls Summary | Key Risk Factors for This Program | Ongoing Oversight & Reporting Commitments
-- For table-only sections omit "paragraphs". For paragraph-only sections omit "table"
-- Be highly specific to the program — avoid generic compliance boilerplate
-- Controls must be operational and concrete, not vague`;
+Rules: 4-5 regulations with 3 requirements each. 3 checklist phases with 4 items each. Bank summary: Program Overview, Regulatory Scope, TSP vs Bank Responsibility Matrix (table: Area/TSP Responsible/Bank Responsible/Shared), Key Risks, Oversight Commitments. Omit paragraphs if section only has table. Be specific to this program.`;
 
   try {
     const res = await fetch('/.netlify/functions/claude', {
