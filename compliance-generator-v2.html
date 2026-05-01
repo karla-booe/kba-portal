@@ -472,7 +472,7 @@ footer { background: var(--navy); border-top: 1px solid var(--gold-dim); padding
 </footer>
 
 <script>
-const API_KEY = 'YOUR_API_KEY_HERE';
+const API_KEY = '';
 let generatedData = null;
 let checkTotal = 0, checkDone = 0;
 
@@ -790,9 +790,9 @@ STRICT RULES:
 - Controls must be operational and concrete, not vague`;
 
   try {
-    const res = await fetch(' /.netlify/functions/claude', {
+    const res = await fetch('/.netlify/functions/claude', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-calls': 'true' },
+      headers: { 'Content-Type': 'application/json',    },
       body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] })
     });
     const apiData = await res.json();
