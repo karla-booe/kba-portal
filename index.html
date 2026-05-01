@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance Chat — Karla Booe Advisory</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0C1C35;
+  --navy-mid: #162844;
+  --navy-light: #1E3353;
+  --teal: #005F5F;
+  --teal-bright: #008080;
+  --teal-glow: rgba(0,128,128,0.15);
+  --gold: #C8A84B;
+  --gold-light: #E8C97A;
+  --gold-dim: rgba(200,168,75,0.3);
+  --cream: #F8F5EF;
+  --off-white: #FDFCFA;
+  --warm-white: #FFFEF9;
+  --gray-100: #EFECE6;
+  --gray-200: #DDD9D0;
+  --gray-400: #9E9890;
+  --gray-600: #5C5850;
+  --green: #1B6644;
+  --green-bg: #EAF5EE;
+  --amber: #A0720A;
+  --amber-bg: #FFF7E6;
+  --red: #B83030;
+  --red-bg: #FFF0F0;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--navy); display: flex; flex-direction: column; }
+
+/* ── HEADER ── */
+header {
+  background: var(--navy);
+  padding: 0 48px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--gold-dim);
+}
+.logo { font-family: 'Cormorant Garamond', serif; color: var(--cream); font-size: 1.1rem; font-weight: 600; letter-spacing: 0.04em; display: flex; align-items: center; gap: 12px; }
+.logo-mark { width: 30px; height: 30px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--gold); font-family: 'JetBrains Mono', monospace; }
+.logo em { color: var(--gold); font-style: normal; }
+.header-right { display: flex; align-items: center; gap: 14px; }
+.header-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--navy); background: var(--gold); padding: 4px 10px; border-radius: 2px; font-weight: 500; }
+.online-dot { width: 8px; height: 8px; border-radius: 50%; background: #1B6644; box-shadow: 0 0 0 2px rgba(27,102,68,0.2); animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.online-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: rgba(248,245,239,0.5); text-transform: uppercase; }
+
+/* ── LAYOUT ── */
+.app-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--warm-white);
+  border-right: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.sidebar-section { padding: 20px; border-bottom: 1px solid var(--gray-100); }
+.sidebar-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 12px; }
+.sidebar-intro { font-size: 0.82rem; color: var(--gray-600); line-height: 1.6; }
+.sidebar-intro strong { color: var(--navy); }
+
+/* Topic chips */
+.topic-chips { display: flex; flex-direction: column; gap: 6px; }
+.topic-chip {
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  border-radius: 4px;
+  padding: 9px 12px;
+  font-size: 0.8rem;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.4;
+}
+.topic-chip:hover { background: var(--teal-glow); border-color: var(--teal-bright); color: var(--teal); }
+.topic-icon { font-size: 0.85rem; flex-shrink: 0; margin-top: 1px; }
+
+/* Products */
+.product-links { display: flex; flex-direction: column; gap: 6px; }
+.product-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--navy);
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: var(--gold-light);
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid var(--gold-dim);
+}
+.product-link:hover { background: var(--navy-light); border-color: var(--gold); }
+.product-link .pl-icon { font-size: 0.85rem; }
+.product-link .pl-label { flex: 1; }
+.product-link .pl-price { color: var(--gold); font-weight: 500; }
+
+/* Disclaimer */
+.sidebar-disc { padding: 16px 20px; font-size: 0.72rem; color: var(--gray-400); line-height: 1.6; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; margin-top: auto; border-top: 1px solid var(--gray-100); }
+
+/* ── CHAT AREA ── */
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Messages */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scroll-behavior: smooth;
+}
+.messages::-webkit-scrollbar { width: 4px; }
+.messages::-webkit-scrollbar-track { background: transparent; }
+.messages::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 2px; }
+
+/* Welcome */
+.welcome {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 40px 0 20px;
+}
+.welcome-icon {
+  width: 64px; height: 64px;
+  background: var(--navy);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  border: 2px solid var(--gold-dim);
+  font-size: 1.5rem;
+}
+.welcome h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; color: var(--navy); margin-bottom: 10px; }
+.welcome h2 em { color: var(--teal-bright); font-style: italic; }
+.welcome p { font-size: 0.88rem; color: var(--gray-600); line-height: 1.7; margin-bottom: 24px; }
+.welcome-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.welcome-chip {
+  background: var(--warm-white);
+  border: 1px solid var(--gray-200);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.welcome-chip:hover { border-color: var(--teal-bright); color: var(--teal); background: var(--teal-glow); }
+
+/* Message bubbles */
+.msg { display: flex; gap: 12px; max-width: 800px; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.msg.user { flex-direction: row-reverse; align-self: flex-end; }
+.msg.assistant { align-self: flex-start; }
+
+.msg-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.msg.user .msg-avatar { background: var(--teal); color: white; }
+.msg.assistant .msg-avatar { background: var(--navy); color: var(--gold); border: 1px solid var(--gold-dim); }
+
+.msg-bubble {
+  padding: 14px 18px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  max-width: 620px;
+}
+.msg.user .msg-bubble { background: var(--teal); color: white; border-radius: 8px 2px 8px 8px; }
+.msg.assistant .msg-bubble { background: var(--warm-white); border: 1px solid var(--gray-200); border-radius: 2px 8px 8px 8px; color: var(--navy); }
+
+/* Formatted assistant content */
+.msg.assistant .msg-bubble h3 { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; color: var(--navy); margin: 14px 0 6px; border-left: 2px solid var(--gold); padding-left: 10px; }
+.msg.assistant .msg-bubble h3:first-child { margin-top: 0; }
+.msg.assistant .msg-bubble p { margin-bottom: 8px; }
+.msg.assistant .msg-bubble p:last-child { margin-bottom: 0; }
+.msg.assistant .msg-bubble ul { margin: 8px 0 8px 16px; }
+.msg.assistant .msg-bubble li { margin-bottom: 4px; font-size: 0.86rem; }
+.msg.assistant .msg-bubble strong { font-weight: 600; color: var(--navy); }
+.msg.assistant .msg-bubble code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: var(--gray-100); padding: 2px 6px; border-radius: 3px; color: var(--teal); }
+
+/* Product callout inside message */
+.product-callout {
+  background: var(--navy);
+  border-radius: 5px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pc-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase; margin-bottom: 3px; }
+.pc-name { color: var(--cream); font-size: 0.84rem; font-weight: 500; }
+.pc-btn { background: var(--gold); color: var(--navy); border: none; padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; cursor: pointer; border-radius: 3px; white-space: nowrap; transition: opacity 0.15s; }
+.pc-btn:hover { opacity: 0.85; }
+
+/* Timestamp */
+.msg-time { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--gray-400); margin-top: 4px; }
+.msg.user .msg-time { text-align: right; }
+
+/* Typing indicator */
+.typing { display: flex; align-items: center; gap: 12px; align-self: flex-start; }
+.typing-dots { display: flex; gap: 4px; padding: 14px 18px; background: var(--warm-white); border: 1px solid var(--gray-200); border-radius: 2px 8px 8px 8px; }
+.typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gray-400); animation: typingPulse 1.4s ease-in-out infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingPulse { 0%, 60%, 100% { transform: scale(1); opacity: 0.4; } 30% { transform: scale(1.2); opacity: 1; } }
+
+/* ── INPUT AREA ── */
+.input-area {
+  flex-shrink: 0;
+  background: var(--warm-white);
+  border-top: 1px solid var(--gray-200);
+  padding: 20px 40px 24px;
+}
+.input-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  background: var(--off-white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 12px 16px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.input-wrap:focus-within { border-color: var(--teal-bright); box-shadow: 0 0 0 3px var(--teal-glow); }
+#chatInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  color: var(--navy);
+  resize: none;
+  outline: none;
+  max-height: 160px;
+  min-height: 24px;
+  line-height: 1.6;
+}
+#chatInput::placeholder { color: var(--gray-400); }
+.send-btn {
+  width: 38px; height: 38px;
+  background: var(--teal);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  color: white;
+  font-size: 1rem;
+}
+.send-btn:hover { background: #004F4F; transform: translateY(-1px); }
+.send-btn:disabled { background: var(--gray-200); cursor: not-allowed; transform: none; }
+.input-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.input-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; color: var(--gray-400); }
+.char-count { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--gray-400); }
+.clear-btn { background: none; border: none; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; color: var(--gray-400); cursor: pointer; text-transform: uppercase; transition: color 0.15s; }
+.clear-btn:hover { color: var(--teal-bright); }
+
+@media (max-width: 700px) {
+  .sidebar { display: none; }
+  header { padding: 0 20px; }
+  .messages { padding: 20px; }
+  .input-area { padding: 14px 20px 18px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">KB</div>
+    Karla Booe <em>Advisory</em>
+  </div>
+  <div class="header-right">
+    <div class="online-dot"></div>
+    <span class="online-label">AI Expert Online</span>
+    <div class="header-badge">Compliance Chat</div>
+  </div>
+</header>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">About This Tool</div>
+      <p class="sidebar-intro">Ask me anything about <strong>consumer compliance, fintech regulations, CMS frameworks, exam prep, or UDAAP</strong> — powered by 20+ years of enterprise compliance expertise.</p>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Popular Topics</div>
+      <div class="topic-chips">
+        <div class="topic-chip" onclick="askQuestion('What are the key elements of a strong Compliance Management System (CMS)?')"><span class="topic-icon">🏗️</span>CMS framework essentials</div>
+        <div class="topic-chip" onclick="askQuestion('What does UDAAP mean and what are the most common UDAAP violations in fintech?')"><span class="topic-icon">⚠️</span>UDAAP — common violations</div>
+        <div class="topic-chip" onclick="askQuestion('What should a community bank look for when onboarding a fintech TSP partner?')"><span class="topic-icon">🏦</span>TSP / sponsor bank due diligence</div>
+        <div class="topic-chip" onclick="askQuestion('What are the main compliance requirements for launching a credit card program?')"><span class="topic-icon">💳</span>Credit card launch requirements</div>
+        <div class="topic-chip" onclick="askQuestion('How should a fintech prepare for a CFPB examination?')"><span class="topic-icon">🔍</span>CFPB exam preparation</div>
+        <div class="topic-chip" onclick="askQuestion('What are the BSA/AML requirements for a BaaS program?')"><span class="topic-icon">🔒</span>BSA/AML for BaaS</div>
+        <div class="topic-chip" onclick="askQuestion('What is Regulation E and how does it apply to prepaid cards?')"><span class="topic-icon">📋</span>Reg E and prepaid cards</div>
+        <div class="topic-chip" onclick="askQuestion('What fair lending risks should I watch for in automated underwriting?')"><span class="topic-icon">⚖️</span>Fair lending — AI underwriting</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">My Products</div>
+      <div class="product-links">
+        <div class="product-link"><span class="pl-icon">📘</span><span class="pl-label">CC Compliance Blueprint</span><span class="pl-price">$149</span></div>
+        <div class="product-link"><span class="pl-icon">🗂️</span><span class="pl-label">CMS Framework Bundle</span><span class="pl-price">$347</span></div>
+        <div class="product-link"><span class="pl-icon">📊</span><span class="pl-label">UDAAP Workbook</span><span class="pl-price">$97</span></div>
+        <div class="product-link"><span class="pl-icon">⬡</span><span class="pl-label">Compliance Generator</span><span class="pl-price">Portal</span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-disc">
+      ⚠ This chat provides general compliance guidance based on Karla Booe Advisory expertise. It is not legal advice. Always validate outputs with qualified counsel before implementation.
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">⬡</div>
+        <h2>Ask me anything about <em>compliance.</em></h2>
+        <p>I'm powered by 20+ years of enterprise compliance expertise across fintech, payments, and community banking. Ask a question or choose a topic to get started.</p>
+        <div class="welcome-chips">
+          <div class="welcome-chip" onclick="askQuestion('How do I build a CMS from scratch?')">How do I build a CMS from scratch?</div>
+          <div class="welcome-chip" onclick="askQuestion('What are the top UDAAP risks in 2026?')">Top UDAAP risks in 2026?</div>
+          <div class="welcome-chip" onclick="askQuestion('What does a sponsor bank expect from a fintech partner?')">What does a sponsor bank expect?</div>
+          <div class="welcome-chip" onclick="askQuestion('How do I prepare for a regulatory exam?')">How to prep for a regulatory exam?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea id="chatInput" placeholder="Ask a compliance question..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this); updateCount();"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+      </div>
+      <div class="input-footer">
+        <span class="input-hint">Press Enter to send · Shift+Enter for new line</span>
+        <div style="display:flex;gap:14px;align-items:center">
+          <span class="char-count" id="charCount">0 / 1000</span>
+          <button class="clear-btn" onclick="clearChat()">Clear chat</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_KEY = 'YOUR_API_KEY_HERE';
+
+const SYSTEM_PROMPT = `You are the AI compliance advisor for Karla Booe Advisory — powered by Karla Booe's 20+ years of enterprise compliance expertise across fintech, payments, community banking, and BaaS programs.
+
+YOUR EXPERTISE COVERS:
+- Consumer financial compliance (Reg Z, Reg E, Reg B, UDAAP, FCRA, TILA, ECOA)
+- BSA/AML, OFAC, sanctions compliance
+- Compliance Management Systems (CMS) — design, implementation, gap analysis
+- Sponsor bank / TSP relationships and third-party risk management
+- CFPB, OCC, FDIC, Federal Reserve examination preparation
+- Credit card, prepaid, BNPL, personal loan, deposit account program compliance
+- Fintech regulatory frameworks and BaaS compliance
+- Fair lending, fair servicing, and disparate impact analysis
+- UDAAP — unfair, deceptive, and abusive acts or practices
+- State licensing and money transmission
+- NACHA/ACH compliance
+- Military lending (SCRA, MLA)
+- Privacy (GLBA, Reg P)
+
+KARLA BOOE ADVISORY PRODUCTS (reference when directly relevant):
+- CC Compliance Blueprint ($149) — comprehensive credit card compliance framework
+- CMS Framework Bundle ($347) — complete Compliance Management System build kit
+- UDAAP Workbook ($97) — UDAAP risk identification and remediation workbook
+- Compliance Package Generator — AI-powered tool that generates compliance matrices, Day 0 checklists, and sponsor bank summaries
+- Fractional CCO services — available for ongoing advisory engagements
+
+RESPONSE STYLE:
+- Answer like a senior compliance executive — direct, specific, and practical
+- Use plain language — avoid unnecessary jargon unless the user is clearly sophisticated
+- Be specific and actionable — give concrete guidance, not vague generalities
+- When relevant, mention Karla's products as helpful resources — but only when genuinely applicable, never forced
+- Format longer answers with clear sections using headers
+- Always include a practical "bottom line" or key takeaway
+- If a question requires legal interpretation specific to their situation, note they should consult counsel — but still provide substantive general guidance
+- Never say "I cannot provide compliance advice" — you ARE the compliance advisor. Provide guidance and note limitations where appropriate.
+- Keep responses focused and readable — comprehensive but not overwhelming
+
+IMPORTANT: You represent Karla Booe Advisory's expertise and brand. Every response should reflect the quality and depth that justifies a $99+/month subscription.`;
+
+let conversationHistory = [];
+let isTyping = false;
+
+function timeNow() {
+  return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+function updateCount() {
+  const len = document.getElementById('chatInput').value.length;
+  document.getElementById('charCount').textContent = `${len} / 1000`;
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function askQuestion(q) {
+  document.getElementById('chatInput').value = q;
+  autoResize(document.getElementById('chatInput'));
+  updateCount();
+  sendMessage();
+}
+
+function hideWelcome() {
+  const w = document.getElementById('welcome');
+  if (w) w.style.display = 'none';
+}
+
+function addMessage(role, content, showProductCallout) {
+  const msgs = document.getElementById('messages');
+  const isUser = role === 'user';
+  const initials = isUser ? 'You' : 'KB';
+
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = initials;
+
+  const body = document.createElement('div');
+  body.style.display = 'flex';
+  body.style.flexDirection = 'column';
+  body.style.gap = '4px';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+
+  if (isUser) {
+    bubble.textContent = content;
+  } else {
+    bubble.innerHTML = formatResponse(content);
+    if (showProductCallout) {
+      bubble.appendChild(createProductCallout(showProductCallout));
+    }
+  }
+
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = timeNow();
+
+  body.appendChild(bubble);
+  body.appendChild(time);
+
+  if (isUser) {
+    div.appendChild(body);
+    div.appendChild(avatar);
+  } else {
+    div.appendChild(avatar);
+    div.appendChild(body);
+  }
+
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function formatResponse(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gm, '<h3>$1</h3>')
+    .replace(/^# (.*$)/gm, '<h3>$1</h3>')
+    .replace(/^\- (.*$)/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>(\n|$))+/g, m => `<ul>${m}</ul>`)
+    .replace(/`(.*?)`/g, '<code>$1</code>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<[hul])(.*)/gm, (m) => m.trim() ? m : '')
+    .split('\n').map(line => {
+      if (line.startsWith('<h3>') || line.startsWith('<ul>') || line.startsWith('<li>') || line.startsWith('<p>') || line === '') return line;
+      return line;
+    }).join('\n');
+}
+
+function createProductCallout(product) {
+  const div = document.createElement('div');
+  div.className = 'product-callout';
+  div.innerHTML = `
+    <div>
+      <div class="pc-label">Relevant Resource</div>
+      <div class="pc-name">${product.name}</div>
+    </div>
+    <button class="pc-btn" onclick="alert('Redirecting to product page...')">View ${product.price} →</button>`;
+  return div;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'typing';
+  div.id = 'typingIndicator';
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.style.background = 'var(--navy)';
+  avatar.style.color = 'var(--gold)';
+  avatar.style.border = '1px solid var(--gold-dim)';
+  avatar.style.fontSize = '0.65rem';
+  avatar.style.fontFamily = "'JetBrains Mono', monospace";
+  avatar.textContent = 'KB';
+  const dots = document.createElement('div');
+  dots.className = 'typing-dots';
+  dots.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  div.appendChild(avatar);
+  div.appendChild(dots);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typingIndicator');
+  if (t) t.remove();
+}
+
+function detectProductCallout(question, answer) {
+  const q = question.toLowerCase();
+  const a = answer.toLowerCase();
+  if ((q.includes('cms') || a.includes('compliance management system')) && a.includes('framework'))
+    return { name: 'CMS Framework Bundle', price: '$347' };
+  if ((q.includes('udaap') || a.includes('unfair') || a.includes('deceptive')) && a.includes('workbook'))
+    return { name: 'UDAAP Risk Workbook', price: '$97' };
+  if ((q.includes('credit card') || q.includes('cc compliance')) && a.includes('blueprint'))
+    return { name: 'CC Compliance Blueprint', price: '$149' };
+  return null;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || isTyping) return;
+
+  hideWelcome();
+  input.value = '';
+  input.style.height = 'auto';
+  updateCount();
+  isTyping = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  addMessage('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+
+  showTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-calls': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: conversationHistory
+      })
+    });
+
+    const data = await res.json();
+    hideTyping();
+
+    if (!res.ok) throw new Error(data.error?.message || 'API error');
+
+    const reply = data.content.map(b => b.text || '').join('');
+    conversationHistory.push({ role: 'assistant', content: reply });
+
+    const callout = detectProductCallout(text, reply);
+    addMessage('assistant', reply, callout);
+
+  } catch (err) {
+    hideTyping();
+    addMessage('assistant', `I'm sorry — I encountered an error: ${err.message}. Please try again.`);
+  }
+
+  isTyping = false;
+  document.getElementById('sendBtn').disabled = false;
+  input.focus();
+}
+
+function clearChat() {
+  if (!confirm('Clear the conversation and start over?')) return;
+  conversationHistory = [];
+  const msgs = document.getElementById('messages');
+  msgs.innerHTML = `<div class="welcome" id="welcome">
+    <div class="welcome-icon">⬡</div>
+    <h2>Ask me anything about <em>compliance.</em></h2>
+    <p>I'm powered by 20+ years of enterprise compliance expertise across fintech, payments, and community banking. Ask a question or choose a topic to get started.</p>
+    <div class="welcome-chips">
+      <div class="welcome-chip" onclick="askQuestion('How do I build a CMS from scratch?')">How do I build a CMS from scratch?</div>
+      <div class="welcome-chip" onclick="askQuestion('What are the top UDAAP risks in 2026?')">Top UDAAP risks in 2026?</div>
+      <div class="welcome-chip" onclick="askQuestion('What does a sponsor bank expect from a fintech partner?')">What does a sponsor bank expect?</div>
+      <div class="welcome-chip" onclick="askQuestion('How do I prepare for a regulatory exam?')">How to prep for a regulatory exam?</div>
+    </div>
+  </div>`;
+}
+</script>
+</body>
+</html>
