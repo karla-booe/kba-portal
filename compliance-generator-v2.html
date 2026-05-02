@@ -650,7 +650,7 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
       hideLoader();
       document.getElementById('formCard').style.display = 'block';
       var e = document.getElementById('errBox');
-      e.textContent = 'Error: ' + err.message + '. Please try again.';
+      console.error('FULL ERROR:', err); console.error('RAW TEXT:', text); e.textContent = 'Error: ' + err.message + '. Please try again.';
       e.classList.add('show');
     });
   });
