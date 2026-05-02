@@ -776,10 +776,10 @@ Return this JSON structure:
 Rules: 4-5 regulations with 3 requirements each. 3 checklist phases with 4 items each. Bank summary: Program Overview, Regulatory Scope, TSP vs Bank Responsibility Matrix (table: Area/TSP Responsible/Bank Responsible/Shared), Key Risks, Oversight Commitments. Omit paragraphs if section only has table. Be specific to this program.`;
 
   try {
-    const res = await fetch('/.netlify/functions/claude', {
+    const res = await fetch('/api/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json',    },
-      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] })
     });
     const apiData = await res.json();
     hideLoad();
