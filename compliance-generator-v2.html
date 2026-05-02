@@ -4,246 +4,164 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Compliance Package Generator — Karla Booe Advisory</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=JetBrains+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsonrepair@3/dist/browser/jsonrepair.umd.js"></script>
 <style>
 :root {
-  --navy: #0C1C35;
-  --navy-mid: #162844;
-  --navy-light: #1E3353;
-  --teal: #005F5F;
-  --teal-bright: #008080;
-  --teal-glow: rgba(0,128,128,0.15);
-  --gold: #C8A84B;
-  --gold-light: #E8C97A;
-  --gold-dim: rgba(200,168,75,0.3);
-  --cream: #F8F5EF;
-  --off-white: #FDFCFA;
-  --warm-white: #FFFEF9;
-  --gray-100: #EFECE6;
-  --gray-200: #DDD9D0;
-  --gray-400: #9E9890;
-  --gray-600: #5C5850;
-  --gray-800: #2E2C28;
-  --green: #1B6644;
-  --green-bg: #EAF5EE;
-  --amber: #A0720A;
-  --amber-bg: #FFF7E6;
-  --red: #B83030;
-  --red-bg: #FFF0F0;
+  --navy: #0C1C35; --navy-mid: #162844; --teal: #005F5F; --teal-bright: #008080;
+  --teal-glow: rgba(0,128,128,0.15); --gold: #C8A84B; --gold-light: #E8C97A;
+  --gold-dim: rgba(200,168,75,0.3); --cream: #F8F5EF; --off-white: #FDFCFA;
+  --warm-white: #FFFEF9; --gray-100: #EFECE6; --gray-200: #DDD9D0;
+  --gray-400: #9E9890; --gray-600: #5C5850; --green: #1B6644;
+  --green-bg: #EAF5EE; --amber: #A0720A; --amber-bg: #FFF7E6;
+  --red: #B83030; --red-bg: #FFF0F0;
 }
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { font-family: 'Outfit', sans-serif; background: var(--cream); color: var(--navy); min-height: 100vh; overflow-x: hidden; }
-
-/* ── HEADER ── */
-header {
-  background: var(--navy);
-  padding: 0 48px;
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  border-bottom: 1px solid var(--gold-dim);
-}
-.logo { font-family: 'Cormorant Garamond', serif; color: var(--cream); font-size: 1.1rem; font-weight: 600; letter-spacing: 0.04em; display: flex; align-items: center; gap: 12px; }
-.logo-mark { width: 30px; height: 30px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--gold); font-family: 'JetBrains Mono', monospace; }
-.logo em { color: var(--gold); font-style: normal; }
-.header-right { display: flex; align-items: center; gap: 14px; }
-.header-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--navy); background: var(--gold); padding: 4px 10px; border-radius: 2px; font-weight: 500; }
-.header-nav { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(248,245,239,0.5); cursor: pointer; transition: color 0.2s; }
-.header-nav:hover { color: var(--gold); }
-
-/* ── HERO ── */
-.hero { background: var(--navy); padding: 72px 48px 64px; position: relative; overflow: hidden; }
-.hero::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(200,168,75,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(200,168,75,0.04) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
-.hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
-.hero-circle { position: absolute; right: -80px; top: 50%; transform: translateY(-50%); width: 480px; height: 480px; border-radius: 50%; border: 1px solid rgba(200,168,75,0.08); pointer-events: none; }
-.hero-circle::before { content: ''; position: absolute; inset: 40px; border-radius: 50%; border: 1px solid rgba(200,168,75,0.06); }
-.hero-circle::after { content: ''; position: absolute; inset: 80px; border-radius: 50%; border: 1px solid rgba(0,128,128,0.1); background: radial-gradient(ellipse at center, rgba(0,128,128,0.05) 0%, transparent 70%); }
-.hero-inner { max-width: 680px; position: relative; z-index: 2; }
-.eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
-.eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--gold); }
-.hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 5vw, 3.6rem); color: var(--cream); line-height: 1.1; font-weight: 600; margin-bottom: 24px; }
-.hero h1 em { color: var(--teal-bright); font-style: italic; }
-.hero h1 span { display: block; color: rgba(248,245,239,0.4); font-weight: 300; font-style: italic; }
-.hero-desc { color: rgba(248,245,239,0.6); font-size: 0.93rem; line-height: 1.75; max-width: 500px; margin-bottom: 36px; }
-.deliverables { display: flex; gap: 10px; flex-wrap: wrap; }
-.del-chip { background: rgba(255,255,255,0.05); border: 1px solid var(--gold-dim); border-radius: 3px; padding: 9px 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--gold-light); letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px; }
-.hero-stats { display: flex; gap: 0; margin-top: 48px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.07); }
-.stat-item { flex: 1; padding-right: 32px; border-right: 1px solid rgba(255,255,255,0.07); margin-right: 32px; }
-.stat-item:last-child { border-right: none; margin-right: 0; padding-right: 0; }
-.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--gold); font-weight: 600; line-height: 1; margin-bottom: 4px; }
-.stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(248,245,239,0.35); }
-
-/* ── MAIN ── */
-.main { max-width: 920px; margin: 0 auto; padding: 52px 24px 100px; }
-.section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal-bright); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-.section-label::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
-
-/* ── FORM ── */
-.form-card { background: var(--warm-white); border: 1px solid var(--gray-200); border-radius: 8px; overflow: hidden; box-shadow: 0 12px 48px rgba(12,28,53,0.09); margin-bottom: 28px; }
-.form-header { background: linear-gradient(135deg, var(--navy-mid), var(--navy-light)); padding: 28px 36px; border-bottom: 1px solid var(--gold-dim); display: flex; align-items: center; justify-content: space-between; }
-.form-header-left h2 { font-family: 'Cormorant Garamond', serif; color: var(--cream); font-size: 1.4rem; font-weight: 600; margin-bottom: 4px; }
-.form-header-left p { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--gold); letter-spacing: 0.12em; }
-.form-body { padding: 36px; }
-.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 22px; }
-@media (max-width: 600px) { .field-grid { grid-template-columns: 1fr; } header { padding: 0 20px; } .hero { padding: 48px 20px; } .hero-stats { display: none; } .main { padding: 32px 16px 60px; } .form-body { padding: 20px; } }
-.field { display: flex; flex-direction: column; gap: 8px; }
-.field.span2 { grid-column: 1 / -1; }
-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gray-600); font-weight: 500; display: flex; align-items: center; gap: 6px; }
-label .req { color: var(--teal-bright); }
-select, textarea { border: 1.5px solid var(--gray-200); border-radius: 5px; padding: 12px 15px; font-family: 'Outfit', sans-serif; font-size: 0.88rem; color: var(--navy); background: var(--off-white); transition: border-color 0.18s, box-shadow 0.18s; appearance: none; width: 100%; }
-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239E9890' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-color: var(--off-white); padding-right: 36px; cursor: pointer; }
-select:focus, textarea:focus { outline: none; border-color: var(--teal-bright); box-shadow: 0 0 0 3px var(--teal-glow); background: white; }
-textarea { resize: vertical; min-height: 88px; line-height: 1.65; }
-.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
-.pill { background: var(--gray-100); border: 1.5px solid var(--gray-200); border-radius: 24px; padding: 7px 14px; font-size: 0.79rem; color: var(--gray-600); cursor: pointer; user-select: none; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
-.pill:hover { border-color: var(--teal-bright); color: var(--teal); background: rgba(0,128,128,0.05); }
-.pill.on { background: var(--teal); border-color: var(--teal); color: white; }
-.pill input { display: none; }
-.btn-gen { width: 100%; margin-top: 16px; background: linear-gradient(135deg, var(--teal), #004F4F); color: white; border: none; padding: 18px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; border-radius: 5px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-.btn-gen:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,95,95,0.35); }
-.btn-gen:disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; transform: none; box-shadow: none; }
-.watermark-badge { display: inline-flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-400); border: 1px solid var(--gray-200); padding: 4px 10px; border-radius: 2px; margin-top: 16px; }
-
-/* ── LOADING ── */
-#loadingPane { display: none; background: var(--warm-white); border: 1px solid var(--gray-200); border-radius: 8px; padding: 72px 32px; text-align: center; box-shadow: 0 12px 48px rgba(12,28,53,0.08); margin-bottom: 28px; }
-#loadingPane.show { display: block; }
-.spin-wrapper { position: relative; width: 56px; height: 56px; margin: 0 auto 28px; }
-.spin { width: 56px; height: 56px; border: 2px solid var(--gray-200); border-top-color: var(--teal-bright); border-right-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
-.spin-inner { position: absolute; inset: 8px; border: 1px solid rgba(200,168,75,0.2); border-bottom-color: var(--gold); border-radius: 50%; animation: spin 1.5s linear infinite reverse; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.load-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; color: var(--teal-bright); margin-bottom: 8px; min-height: 20px; }
-.load-sub { font-size: 0.8rem; color: var(--gray-400); }
-.load-dots { display: flex; justify-content: center; gap: 6px; margin-top: 20px; }
-.load-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gray-200); animation: pulse 1.4s ease-in-out infinite; }
-.load-dot:nth-child(2) { animation-delay: 0.2s; }
-.load-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes pulse { 0%, 80%, 100% { background: var(--gray-200); } 40% { background: var(--teal-bright); } }
-
-/* ── RESULTS ── */
-#resultsPane { display: none; }
-#resultsPane.show { display: block; }
-.dl-bar { background: var(--navy); border: 1px solid var(--gold-dim); border-radius: 8px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; position: relative; overflow: hidden; }
-.dl-bar::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--teal-bright), var(--gold)); }
-.dl-label h3 { font-family: 'Cormorant Garamond', serif; color: var(--cream); font-size: 1.1rem; font-weight: 600; margin-bottom: 3px; }
-.dl-label p { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--gold); letter-spacing: 0.1em; }
-.dl-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-.btn-dl { background: rgba(255,255,255,0.06); border: 1px solid var(--gold-dim); color: var(--gold-light); padding: 9px 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; border-radius: 3px; transition: all 0.15s; display: flex; align-items: center; gap: 7px; }
-.btn-dl:hover { background: rgba(200,168,75,0.15); border-color: var(--gold); color: white; }
-.btn-dl-primary { background: var(--gold); border: 1px solid var(--gold); color: var(--navy); padding: 10px 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; border-radius: 3px; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; gap: 7px; }
-.btn-dl-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-
-/* tabs */
-.tab-bar { display: flex; background: var(--warm-white); border: 1px solid var(--gray-200); border-bottom: none; border-radius: 8px 8px 0 0; overflow: hidden; }
-.tab-btn { flex: 1; padding: 15px 12px; background: none; border: none; border-right: 1px solid var(--gray-200); font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-400); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.tab-btn:last-child { border-right: none; }
-.tab-btn:hover { background: var(--gray-100); color: var(--navy); }
-.tab-btn.active { background: var(--navy); color: var(--gold); position: relative; }
-.tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--gold); }
-.tab-pane { display: none; }
-.tab-pane.active { display: block; }
-.result-card { background: var(--warm-white); border: 1px solid var(--gray-200); border-top: none; border-radius: 0 0 8px 8px; padding: 32px; box-shadow: 0 12px 48px rgba(12,28,53,0.06); margin-bottom: 20px; }
-.prog-bar { background: var(--navy); border-radius: 5px; padding: 18px 24px; display: flex; flex-wrap: wrap; gap: 32px; margin-bottom: 28px; position: relative; overflow: hidden; }
-.prog-bar::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--gold); }
-.prog-item .plabel { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 4px; }
-.prog-item .pval { color: var(--gold); font-size: 0.88rem; font-weight: 500; }
-
-/* matrix */
-.reg-block { border: 1px solid var(--gray-200); border-radius: 5px; margin-bottom: 12px; overflow: hidden; transition: box-shadow 0.2s; }
-.reg-block:hover { box-shadow: 0 4px 16px rgba(12,28,53,0.08); }
-.reg-head { display: flex; align-items: center; gap: 14px; padding: 15px 20px; cursor: pointer; background: var(--gray-100); transition: background 0.14s; }
-.reg-head:hover { background: var(--gray-200); }
-.priority-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.dot-high { background: var(--red); box-shadow: 0 0 0 3px rgba(184,48,48,0.15); }
-.dot-med { background: var(--amber); box-shadow: 0 0 0 3px rgba(160,114,10,0.15); }
-.dot-low { background: var(--green); box-shadow: 0 0 0 3px rgba(27,102,68,0.15); }
-.reg-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
-.reg-sub { font-size: 0.73rem; color: var(--gray-400); font-family: 'JetBrains Mono', monospace; }
-.pri-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; font-weight: 500; }
-.pri-high { background: var(--red-bg); color: var(--red); }
-.pri-med { background: var(--amber-bg); color: var(--amber); }
-.pri-low { background: var(--green-bg); color: var(--green); }
-.chev { color: var(--gray-400); font-size: 0.65rem; transition: transform 0.22s; margin-left: 8px; }
-.reg-block.open .chev { transform: rotate(180deg); }
-.reg-rows { display: none; }
-.reg-block.open .reg-rows { display: block; }
-.req-row { display: grid; grid-template-columns: 1.4fr 1.4fr 0.8fr 1fr; border-top: 1px solid var(--gray-100); font-size: 0.8rem; transition: background 0.12s; }
-.req-row:hover { background: var(--cream); }
-.req-cell { padding: 13px 16px; border-right: 1px solid var(--gray-100); line-height: 1.55; }
-.req-cell:last-child { border-right: none; }
-.req-name { font-weight: 600; color: var(--navy); font-size: 0.82rem; }
-.req-detail { font-size: 0.73rem; color: var(--gray-400); margin-top: 3px; line-height: 1.5; }
-.resp-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: var(--teal-bright); font-weight: 500; }
-.evi-tag { display: inline-block; background: var(--green-bg); color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; padding: 3px 7px; border-radius: 2px; }
-.col-headers { display: grid; grid-template-columns: 1.4fr 1.4fr 0.8fr 1fr; background: var(--navy-mid); }
-.col-hdr { font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gray-400); padding: 9px 16px; border-right: 1px solid rgba(255,255,255,0.05); }
-.col-hdr:last-child { border-right: none; }
-
-/* checklist */
-.checklist-section { margin-bottom: 28px; }
-.checklist-section h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; color: var(--navy); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; gap: 10px; }
-.phase-num { width: 24px; height: 24px; background: var(--navy); color: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; flex-shrink: 0; }
-.check-item { display: flex; align-items: flex-start; gap: 13px; padding: 12px 16px; border-radius: 4px; margin-bottom: 7px; font-size: 0.85rem; line-height: 1.5; border: 1.5px solid var(--gray-100); background: var(--off-white); transition: all 0.15s; cursor: pointer; }
-.check-item:hover { background: var(--cream); border-color: var(--gray-200); }
-.check-item.checked { background: var(--green-bg); border-color: rgba(27,102,68,0.25); }
-.check-item.checked .check-box { background: var(--green); border-color: var(--green); }
-.check-item.checked .check-box::after { content: '✓'; color: white; font-size: 0.65rem; }
-.check-box { width: 19px; height: 19px; min-width: 19px; border: 1.5px solid var(--gray-200); border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.15s; }
-.check-text { flex: 1; }
-.check-label { font-weight: 500; color: var(--navy); }
-.check-sub { font-size: 0.73rem; color: var(--gray-400); margin-top: 3px; }
-.check-owner { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--teal-bright); white-space: nowrap; padding: 3px 8px; border-radius: 2px; background: rgba(0,128,128,0.08); align-self: flex-start; }
-.checklist-progress { background: var(--gray-100); border-radius: 4px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; font-size: 0.8rem; }
-.progress-bar-wrap { flex: 1; height: 4px; background: var(--gray-200); border-radius: 2px; overflow: hidden; }
-.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--teal-bright), var(--green)); border-radius: 2px; width: 0%; transition: width 0.4s ease; }
-.progress-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--gray-600); white-space: nowrap; }
-
-/* bank */
-.bank-doc { line-height: 1.8; }
-.bank-doc .doc-header { background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: var(--cream); border-radius: 5px; padding: 28px 32px; margin-bottom: 28px; position: relative; overflow: hidden; }
-.bank-doc .doc-header::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold), transparent); }
-.bank-doc .doc-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 6px; }
-.bank-doc .doc-header .meta { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--gold); letter-spacing: 0.1em; }
-.bank-section { margin-bottom: 28px; }
-.bank-section h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 700; color: var(--navy); border-left: 3px solid var(--gold); padding-left: 14px; margin-bottom: 12px; }
-.bank-section p { font-size: 0.84rem; color: var(--gray-600); margin-bottom: 8px; line-height: 1.75; }
-.bank-table { width: 100%; border-collapse: collapse; font-size: 0.79rem; margin: 10px 0; }
-.bank-table th { background: var(--navy); font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray-400); padding: 9px 14px; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
-.bank-table td { padding: 10px 14px; border: 1px solid var(--gray-200); color: var(--gray-600); vertical-align: top; line-height: 1.55; }
-.bank-table tr:hover td { background: var(--cream); }
-.sig-block { background: var(--cream); border: 1px solid var(--gray-200); border-radius: 5px; padding: 24px 28px; margin-top: 28px; }
-.sig-row { display: flex; gap: 40px; flex-wrap: wrap; }
-.sig-field { flex: 1; min-width: 200px; }
-.sig-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 32px; }
-.sig-line { border-top: 1px solid var(--gray-600); padding-top: 5px; font-size: 0.73rem; color: var(--gray-400); }
-
-/* cta / misc */
-.cta { background: var(--navy); border-radius: 8px; padding: 36px 40px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; position: relative; overflow: hidden; margin-top: 24px; }
-.cta::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--teal-bright), var(--gold)); }
-.cta-text h3 { font-family: 'Cormorant Garamond', serif; color: var(--cream); font-size: 1.35rem; font-weight: 600; margin-bottom: 6px; }
-.cta-text p { font-size: 0.83rem; color: rgba(248,245,239,0.58); line-height: 1.65; max-width: 400px; }
-.btn-cta { background: var(--gold); color: var(--navy); border: none; padding: 14px 26px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.18s; white-space: nowrap; }
-.btn-cta:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn-reset { background: transparent; border: 1px solid var(--gray-200); color: var(--gray-600); padding: 10px 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; border-radius: 4px; transition: all 0.15s; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
-.btn-reset:hover { border-color: var(--teal-bright); color: var(--teal-bright); }
-.err { display: none; background: var(--red-bg); border: 1px solid rgba(184,48,48,0.25); border-radius: 4px; padding: 14px 18px; color: var(--red); font-size: 0.83rem; margin-bottom: 16px; margin-top: 12px; }
-.err.show { display: block; }
-.disc { margin-top: 20px; padding: 14px 18px; background: var(--amber-bg); border-left: 3px solid var(--gold); border-radius: 2px; font-size: 0.75rem; color: var(--gray-600); line-height: 1.65; }
-
-/* reg library info box */
-.reg-info { background: var(--green-bg); border: 1px solid rgba(27,102,68,0.2); border-radius: 5px; padding: 12px 16px; margin-bottom: 20px; font-size: 0.79rem; color: var(--green); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em; }
-
-footer { background: var(--navy); border-top: 1px solid var(--gold-dim); padding: 28px 48px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-.footer-logo { font-family: 'Cormorant Garamond', serif; color: rgba(248,245,239,0.5); font-size: 0.9rem; }
-.footer-logo em { color: var(--gold); font-style: normal; }
-.footer-copy { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; color: rgba(248,245,239,0.25); }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--navy);min-height:100vh}
+header{background:var(--navy);padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;border-bottom:1px solid var(--gold-dim)}
+.logo{font-family:'Cormorant Garamond',serif;color:var(--cream);font-size:1.1rem;font-weight:600;letter-spacing:.04em;display:flex;align-items:center;gap:12px}
+.logo-mark{width:30px;height:30px;border:1.5px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--gold);font-family:'JetBrains Mono',monospace}
+.logo em{color:var(--gold);font-style:normal}
+.header-badge{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);background:var(--gold);padding:4px 10px;border-radius:2px;font-weight:500}
+.hero{background:var(--navy);padding:60px 48px 52px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.eyebrow::before{content:'';display:block;width:28px;height:1px;background:var(--gold)}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.2rem);color:var(--cream);line-height:1.1;font-weight:600;margin-bottom:16px}
+.hero h1 em{color:var(--teal-bright);font-style:italic}
+.hero p{color:rgba(248,245,239,.6);font-size:.9rem;line-height:1.7;max-width:500px;margin-bottom:28px}
+.deliverables{display:flex;gap:10px;flex-wrap:wrap}
+.del-chip{background:rgba(255,255,255,.05);border:1px solid var(--gold-dim);border-radius:3px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:.63rem;color:var(--gold-light);letter-spacing:.1em}
+.main{max-width:900px;margin:0 auto;padding:48px 24px 80px}
+.form-card{background:var(--warm-white);border:1px solid var(--gray-200);border-radius:8px;overflow:hidden;box-shadow:0 12px 48px rgba(12,28,53,.09);margin-bottom:28px}
+.form-header{background:var(--navy-mid);padding:24px 32px;border-bottom:1px solid var(--gold-dim)}
+.form-header h2{font-family:'Cormorant Garamond',serif;color:var(--cream);font-size:1.3rem;font-weight:600;margin-bottom:4px}
+.form-header p{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--gold);letter-spacing:.12em}
+.form-body{padding:32px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+@media(max-width:600px){.field-grid{grid-template-columns:1fr}header{padding:0 20px}.hero{padding:40px 20px}.main{padding:28px 16px 60px}.form-body{padding:20px}}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.span2{grid-column:1/-1}
+label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gray-600);font-weight:500}
+label .req{color:var(--teal-bright)}
+select,textarea{border:1.5px solid var(--gray-200);border-radius:5px;padding:11px 14px;font-family:'Outfit',sans-serif;font-size:.88rem;color:var(--navy);background:var(--off-white);transition:border-color .18s,box-shadow .18s;appearance:none;width:100%}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239E9890' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-color:var(--off-white);padding-right:36px;cursor:pointer}
+select:focus,textarea:focus{outline:none;border-color:var(--teal-bright);box-shadow:0 0 0 3px var(--teal-glow);background:white}
+textarea{resize:vertical;min-height:80px;line-height:1.65}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.pill{background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:24px;padding:7px 14px;font-size:.79rem;color:var(--gray-600);cursor:pointer;user-select:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.pill:hover{border-color:var(--teal-bright);color:var(--teal);background:rgba(0,128,128,.05)}
+.pill.active{background:var(--teal);border-color:var(--teal);color:white}
+.btn-gen{width:100%;margin-top:16px;background:linear-gradient(135deg,var(--teal),#004F4F);color:white;border:none;padding:17px;font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:5px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-gen:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,95,95,.35)}
+.btn-gen:disabled{background:var(--gray-200);color:var(--gray-400);cursor:not-allowed;transform:none;box-shadow:none}
+.err{display:none;background:var(--red-bg);border:1px solid rgba(184,48,48,.25);border-radius:4px;padding:14px 18px;color:var(--red);font-size:.83rem;margin-top:12px}
+.err.show{display:block}
+.watermark-badge{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-400);border:1px solid var(--gray-200);padding:4px 10px;border-radius:2px;margin-top:14px;display:inline-block}
+#loadingPane{display:none;background:var(--warm-white);border:1px solid var(--gray-200);border-radius:8px;padding:64px 32px;text-align:center;box-shadow:0 12px 48px rgba(12,28,53,.08);margin-bottom:28px}
+#loadingPane.show{display:block}
+.spin-wrap{position:relative;width:52px;height:52px;margin:0 auto 24px}
+.spin{width:52px;height:52px;border:2px solid var(--gray-200);border-top-color:var(--teal-bright);border-right-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;color:var(--teal-bright);margin-bottom:6px}
+.load-sub{font-size:.8rem;color:var(--gray-400)}
+#resultsPane{display:none}
+#resultsPane.show{display:block}
+.dl-bar{background:var(--navy);border:1px solid var(--gold-dim);border-radius:8px;padding:20px 26px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:18px;position:relative;overflow:hidden}
+.dl-bar::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal-bright),var(--gold))}
+.dl-label h3{font-family:'Cormorant Garamond',serif;color:var(--cream);font-size:1.05rem;font-weight:600;margin-bottom:2px}
+.dl-label p{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--gold);letter-spacing:.1em}
+.dl-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-dl{background:rgba(255,255,255,.06);border:1px solid var(--gold-dim);color:var(--gold-light);padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-dl:hover{background:rgba(200,168,75,.15);border-color:var(--gold);color:white}
+.btn-dl-primary{background:var(--gold);border:1px solid var(--gold);color:var(--navy);padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:3px;font-weight:600;transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-dl-primary:hover{opacity:.88;transform:translateY(-1px)}
+.tab-bar{display:flex;background:var(--warm-white);border:1px solid var(--gray-200);border-bottom:none;border-radius:8px 8px 0 0;overflow:hidden}
+.tab-btn{flex:1;padding:14px 10px;background:none;border:none;border-right:1px solid var(--gray-200);font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-400);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.tab-btn:last-child{border-right:none}
+.tab-btn:hover{background:var(--gray-100);color:var(--navy)}
+.tab-btn.active{background:var(--navy);color:var(--gold)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.result-card{background:var(--warm-white);border:1px solid var(--gray-200);border-top:none;border-radius:0 0 8px 8px;padding:28px;box-shadow:0 12px 48px rgba(12,28,53,.06);margin-bottom:20px}
+.prog-bar{background:var(--navy);border-radius:5px;padding:16px 22px;display:flex;flex-wrap:wrap;gap:28px;margin-bottom:24px}
+.prog-item .plabel{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-400);margin-bottom:3px}
+.prog-item .pval{color:var(--gold);font-size:.86rem;font-weight:500}
+.reg-block{border:1px solid var(--gray-200);border-radius:5px;margin-bottom:10px;overflow:hidden}
+.reg-head{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;background:var(--gray-100);transition:background .14s}
+.reg-head:hover{background:var(--gray-200)}
+.priority-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-high{background:var(--red)}
+.dot-med{background:var(--amber)}
+.dot-low{background:var(--green)}
+.reg-title{font-weight:600;font-size:.88rem;flex:1}
+.reg-sub{font-size:.72rem;color:var(--gray-400);font-family:'JetBrains Mono',monospace}
+.pri-tag{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:2px;font-weight:500}
+.pri-high{background:var(--red-bg);color:var(--red)}
+.pri-med{background:var(--amber-bg);color:var(--amber)}
+.pri-low{background:var(--green-bg);color:var(--green)}
+.chev{color:var(--gray-400);font-size:.65rem;transition:transform .22s;margin-left:8px}
+.reg-block.open .chev{transform:rotate(180deg)}
+.reg-rows{display:none}
+.reg-block.open .reg-rows{display:block}
+.req-row{display:grid;grid-template-columns:1.4fr 1.4fr 0.8fr 1fr;border-top:1px solid var(--gray-100);font-size:.79rem}
+.req-row:hover{background:var(--cream)}
+.req-cell{padding:12px 14px;border-right:1px solid var(--gray-100);line-height:1.5}
+.req-cell:last-child{border-right:none}
+.req-name{font-weight:600;color:var(--navy);font-size:.81rem}
+.req-detail{font-size:.72rem;color:var(--gray-400);margin-top:3px;line-height:1.5}
+.resp-tag{font-family:'JetBrains Mono',monospace;font-size:.63rem;color:var(--teal-bright);font-weight:500}
+.evi-tag{display:inline-block;background:var(--green-bg);color:var(--green);font-family:'JetBrains Mono',monospace;font-size:.57rem;padding:3px 6px;border-radius:2px}
+.col-headers{display:grid;grid-template-columns:1.4fr 1.4fr 0.8fr 1fr;background:var(--navy-mid)}
+.col-hdr{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-400);padding:8px 14px;border-right:1px solid rgba(255,255,255,.05)}
+.col-hdr:last-child{border-right:none}
+.checklist-section{margin-bottom:24px}
+.checklist-section h3{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;color:var(--navy);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:8px}
+.phase-num{width:22px;height:22px;background:var(--navy);color:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.58rem;flex-shrink:0}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;border-radius:4px;margin-bottom:6px;font-size:.84rem;line-height:1.5;border:1.5px solid var(--gray-100);background:var(--off-white);transition:all .15s;cursor:pointer}
+.check-item:hover{background:var(--cream);border-color:var(--gray-200)}
+.check-item.checked{background:var(--green-bg);border-color:rgba(27,102,68,.25)}
+.check-item.checked .check-box{background:var(--green);border-color:var(--green)}
+.check-item.checked .check-box::after{content:'✓';color:white;font-size:.63rem}
+.check-box{width:18px;height:18px;min-width:18px;border:1.5px solid var(--gray-200);border-radius:4px;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.check-text{flex:1}
+.check-label{font-weight:500;color:var(--navy)}
+.check-sub{font-size:.72rem;color:var(--gray-400);margin-top:2px}
+.check-owner{font-family:'JetBrains Mono',monospace;font-size:.57rem;color:var(--teal-bright);white-space:nowrap;padding:3px 7px;border-radius:2px;background:rgba(0,128,128,.08);align-self:flex-start}
+.progress-wrap{background:var(--gray-100);border-radius:4px;padding:11px 14px;margin-bottom:18px;display:flex;align-items:center;gap:14px}
+.progress-track{flex:1;height:4px;background:var(--gray-200);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal-bright),var(--green));border-radius:2px;width:0%;transition:width .4s ease}
+.progress-lbl{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--gray-600);white-space:nowrap}
+.bank-doc{line-height:1.8}
+.bank-doc .doc-header{background:var(--navy);color:var(--cream);border-radius:5px;padding:24px 28px;margin-bottom:24px}
+.bank-doc .doc-header h2{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;margin-bottom:5px}
+.bank-doc .doc-header .meta{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--gold);letter-spacing:.1em}
+.bank-section{margin-bottom:24px}
+.bank-section h3{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:var(--navy);border-left:3px solid var(--gold);padding-left:12px;margin-bottom:10px}
+.bank-section p{font-size:.83rem;color:var(--gray-600);margin-bottom:7px;line-height:1.72}
+.bank-table{width:100%;border-collapse:collapse;font-size:.78rem;margin:10px 0}
+.bank-table th{background:var(--navy);font-family:'JetBrains Mono',monospace;font-size:.57rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-400);padding:8px 12px;text-align:left;border:1px solid rgba(255,255,255,.05)}
+.bank-table td{padding:9px 12px;border:1px solid var(--gray-200);color:var(--gray-600);vertical-align:top;line-height:1.5}
+.bank-table tr:hover td{background:var(--cream)}
+.sig-block{background:var(--cream);border:1px solid var(--gray-200);border-radius:5px;padding:22px 26px;margin-top:24px}
+.sig-row{display:flex;gap:36px;flex-wrap:wrap}
+.sig-field{flex:1;min-width:180px}
+.sig-lbl{font-family:'JetBrains Mono',monospace;font-size:.57rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.12em;margin-bottom:28px}
+.sig-line{border-top:1px solid var(--gray-600);padding-top:4px;font-size:.72rem;color:var(--gray-400)}
+.cta{background:var(--navy);border-radius:8px;padding:32px 36px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;position:relative;overflow:hidden;margin-top:20px}
+.cta::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal-bright),var(--gold))}
+.cta h3{font-family:'Cormorant Garamond',serif;color:var(--cream);font-size:1.2rem;font-weight:600;margin-bottom:5px}
+.cta p{font-size:.82rem;color:rgba(248,245,239,.58);line-height:1.65;max-width:380px}
+.btn-cta{background:var(--gold);color:var(--navy);border:none;padding:13px 22px;font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;cursor:pointer;border-radius:4px;transition:all .18s;white-space:nowrap}
+.btn-cta:hover{opacity:.9;transform:translateY(-1px)}
+.disc{margin-top:18px;padding:13px 16px;background:var(--amber-bg);border-left:3px solid var(--gold);border-radius:2px;font-size:.74rem;color:var(--gray-600);line-height:1.65}
+.btn-reset{background:transparent;border:1px solid var(--gray-200);color:var(--gray-600);padding:9px 18px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .15s;display:flex;align-items:center;gap:7px;margin-bottom:18px}
+.btn-reset:hover{border-color:var(--teal-bright);color:var(--teal-bright)}
+footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:24px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.footer-logo{font-family:'Cormorant Garamond',serif;color:rgba(248,245,239,.5);font-size:.9rem}
+.footer-logo em{color:var(--gold);font-style:normal}
+.footer-copy{font-family:'JetBrains Mono',monospace;font-size:.57rem;letter-spacing:.1em;color:rgba(248,245,239,.25)}
 </style>
 </head>
 <body>
@@ -253,170 +171,147 @@ footer { background: var(--navy); border-top: 1px solid var(--gold-dim); padding
     <div class="logo-mark">KB</div>
     Karla Booe <em>Advisory</em>
   </div>
-  <div class="header-right">
-    <span class="header-nav">← Back to Site</span>
+  <div style="display:flex;align-items:center;gap:14px">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(248,245,239,.5);cursor:pointer">← Back to Site</span>
     <div class="header-badge">AI Tool — v2</div>
   </div>
 </header>
 
 <div class="hero">
-  <div class="hero-circle"></div>
-  <div class="hero-inner">
+  <div style="max-width:680px;position:relative;z-index:2">
     <div class="eyebrow">Compliance Package Generator</div>
-    <h1>Describe your program.<br><em>Receive your compliance package.</em><span>Instantly.</span></h1>
-    <p class="hero-desc">Answer four questions. Get three ready-to-use documents — a scoped compliance matrix, a Day 0 launch checklist, and a sponsor bank summary — powered by 20+ years of enterprise compliance expertise and a comprehensive regulation library covering 25+ federal regulations.</p>
+    <h1>Describe your program.<br><em>Receive your compliance package.</em></h1>
+    <p>Answer six questions. Get three ready-to-use documents — a scoped compliance matrix, a Day 0 launch checklist, and a sponsor bank summary — powered by 20+ years of enterprise compliance expertise.</p>
     <div class="deliverables">
       <div class="del-chip">📊 Compliance Matrix</div>
       <div class="del-chip">✅ Day 0 Checklist</div>
-      <div class="del-chip">🏦 Sponsor Bank Summary</div>
+      <div class="del-chip">🏦 Bank Summary</div>
       <div class="del-chip">📥 Excel + PDF Export</div>
-    </div>
-    <div class="hero-stats">
-      <div class="stat-item"><div class="stat-num">25+</div><div class="stat-label">Regulations covered</div></div>
-      <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Documents generated</div></div>
-      <div class="stat-item"><div class="stat-num">&lt;60s</div><div class="stat-label">Time to package</div></div>
-      <div class="stat-item"><div class="stat-num">20+</div><div class="stat-label">Years expertise</div></div>
     </div>
   </div>
 </div>
 
 <div class="main">
-  <div class="section-label">Program Setup</div>
 
   <div class="form-card" id="formCard">
     <div class="form-header">
-      <div class="form-header-left">
-        <h2>Program Profile</h2>
-        <p>4 inputs → 3 documents → Excel + PDF download</p>
-      </div>
+      <h2>Program Profile</h2>
+      <p>6 inputs → 3 documents → instant download</p>
     </div>
     <div class="form-body">
-      <div class="reg-info">
-        ✦ Regulation library covers: Reg Z · Reg E · Reg B · Reg DD · UDAAP · BSA/AML · OFAC · FCRA · FACTA · SCRA · MLA · ECOA · Truth in Savings · NACHA · TILA · RESPA · Gramm-Leach-Bliley · CAN-SPAM · TCPA · State Licensing · Network Rules (Visa/MC) · CFPB Supervisory · Fair Debt Collection · Electronic Fund Transfer Act · Dodd-Frank
-      </div>
-
       <div class="field-grid">
         <div class="field">
           <label>Product Type <span class="req">*</span></label>
           <select id="productType">
             <option value="">Select product...</option>
-            <option value="credit card">Credit Card</option>
-            <option value="prepaid card">Prepaid Card</option>
-            <option value="debit card">Debit Card</option>
-            <option value="BNPL / pay-in-4">Buy Now Pay Later (BNPL)</option>
-            <option value="personal loan">Personal Loan</option>
-            <option value="deposit account">Deposit Account</option>
-            <option value="money transfer / remittance">Money Transfer / Remittance</option>
-            <option value="digital wallet">Digital Wallet</option>
-            <option value="earned wage access">Earned Wage Access</option>
-            <option value="small business lending">Small Business Lending</option>
+            <option>Credit Card</option>
+            <option>Prepaid Card</option>
+            <option>Debit Card</option>
+            <option>BNPL / Pay-in-4</option>
+            <option>Personal Loan</option>
+            <option>Deposit Account</option>
+            <option>Money Transfer / Remittance</option>
+            <option>Digital Wallet</option>
+            <option>Earned Wage Access</option>
+            <option>Small Business Lending</option>
           </select>
         </div>
         <div class="field">
           <label>Operating Model <span class="req">*</span></label>
           <select id="operatingModel">
             <option value="">Select model...</option>
-            <option value="TSP with sponsor bank (BaaS)">TSP with Sponsor Bank</option>
-            <option value="community bank — direct program">Community Bank — Direct</option>
-            <option value="fintech with own charter">Fintech — Own Charter</option>
-            <option value="credit union program">Credit Union Program</option>
-            <option value="BaaS platform">BaaS Platform</option>
-            <option value="state-licensed lender">State-Licensed Lender</option>
-            <option value="program manager / agent bank model">Program Manager / Agent Bank</option>
+            <option>TSP with Sponsor Bank (BaaS)</option>
+            <option>Community Bank — Direct</option>
+            <option>Fintech — Own Charter</option>
+            <option>Credit Union Program</option>
+            <option>BaaS Platform</option>
+            <option>State-Licensed Lender</option>
           </select>
         </div>
         <div class="field">
           <label>Customer Segment <span class="req">*</span></label>
           <select id="segment">
             <option value="">Select segment...</option>
-            <option value="consumer (retail)">Consumer — Retail</option>
-            <option value="small business">Small Business</option>
-            <option value="gig / contractor workers">Gig / Contractor Workers</option>
-            <option value="underbanked / thin-file consumers">Underbanked / Thin-File</option>
-            <option value="corporate / commercial">Corporate / Commercial</option>
-            <option value="military servicemembers and veterans">Military / Veterans</option>
-            <option value="students">Students</option>
+            <option>Consumer — Retail</option>
+            <option>Small Business</option>
+            <option>Gig / Contractor Workers</option>
+            <option>Underbanked / Thin-File</option>
+            <option>Corporate / Commercial</option>
+            <option>Military / Veterans</option>
           </select>
         </div>
         <div class="field">
           <label>Credit Bureau Reporting <span class="req">*</span></label>
           <select id="creditReporting">
             <option value="">Select...</option>
-            <option value="reports to all 3 bureaus">Yes — All 3 bureaus</option>
-            <option value="reports to 1–2 bureaus">Yes — 1–2 bureaus</option>
-            <option value="no credit reporting">No reporting</option>
-            <option value="plans to add reporting later">Plans to add later</option>
+            <option>Yes — All 3 bureaus</option>
+            <option>Yes — 1-2 bureaus</option>
+            <option>No reporting</option>
+            <option>Plans to add later</option>
           </select>
         </div>
         <div class="field">
           <label>Primary Regulator <span class="req">*</span></label>
           <select id="regulator">
             <option value="">Select...</option>
-            <option value="CFPB (primary)">CFPB — Primary</option>
-            <option value="OCC (national bank charter)">OCC — National Bank</option>
-            <option value="FDIC (state non-member bank)">FDIC — State Non-Member</option>
-            <option value="Federal Reserve (state member bank)">Federal Reserve — State Member</option>
-            <option value="NCUA (credit union)">NCUA — Credit Union</option>
-            <option value="State regulator (non-bank)">State Regulator — Non-Bank</option>
-            <option value="Multiple / dual regulator">Multiple / Dual Regulator</option>
+            <option>CFPB</option>
+            <option>OCC — National Bank</option>
+            <option>FDIC — State Non-Member</option>
+            <option>Federal Reserve</option>
+            <option>NCUA — Credit Union</option>
+            <option>State Regulator — Non-Bank</option>
           </select>
         </div>
         <div class="field">
           <label>Program Stage <span class="req">*</span></label>
           <select id="stage">
             <option value="">Select stage...</option>
-            <option value="pre-launch planning (Day 0)">Pre-Launch — Day 0 Planning</option>
-            <option value="launch within 90 days">Launching within 90 days</option>
-            <option value="recently launched (under 12 months)">Recently Launched (&lt;12 months)</option>
-            <option value="established program — exam prep">Established — Exam Prep</option>
-            <option value="remediation / enforcement response">Remediation / Enforcement</option>
+            <option>Pre-Launch — Day 0 Planning</option>
+            <option>Launching within 90 days</option>
+            <option>Recently Launched (under 12 months)</option>
+            <option>Established — Exam Prep</option>
+            <option>Remediation / Enforcement</option>
           </select>
         </div>
       </div>
 
-      <div class="field span2" style="margin-bottom:22px">
-        <label>Key Features <span style="color:var(--gray-400);letter-spacing:0.05em;text-transform:none;font-size:0.7rem">(select all that apply)</span></label>
-        <div class="pills" id="pills">
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="has monthly, annual, or transaction fees"> Has Fees</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="mobile-only channel"> Mobile-Only</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="offers overdraft or revolving credit line"> Overdraft / Credit Line</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="international / cross-border transactions"> International Txns</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="rewards or cashback program"> Rewards / Cashback</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="serves high-risk or thin-file customers"> High-Risk Customers</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="joint marketing with retailer or third party"> Joint Marketing</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="holds or pools consumer funds"> Holds Consumer Funds</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="dispute / chargeback processing"> Dispute Processing</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="automated underwriting or AI credit decisioning"> AI / Automated Underwriting</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="third-party data use for credit decisions"> Third-Party Data</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="paper or electronic statement delivery"> Statement Delivery</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="SMS or email marketing communications"> SMS / Email Marketing</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="debt collection or third-party collections"> Debt Collections</label>
-          <label class="pill" onclick="togglePill(this, event)"><input type="checkbox" value="cryptocurrency or digital asset integration"> Crypto / Digital Assets</label>
+      <div class="field span2" style="margin-bottom:20px">
+        <label>Key Features <span style="color:var(--gray-400);letter-spacing:.05em;text-transform:none;font-size:.7rem">(click to select)</span></label>
+        <div class="pills" id="pillsContainer">
+          <span class="pill" data-value="has fees">Has Fees</span>
+          <span class="pill" data-value="mobile-only">Mobile-Only</span>
+          <span class="pill" data-value="overdraft or credit line">Overdraft / Credit Line</span>
+          <span class="pill" data-value="international transactions">International Txns</span>
+          <span class="pill" data-value="rewards or cashback">Rewards / Cashback</span>
+          <span class="pill" data-value="high-risk customers">High-Risk Customers</span>
+          <span class="pill" data-value="joint marketing">Joint Marketing</span>
+          <span class="pill" data-value="holds consumer funds">Holds Consumer Funds</span>
+          <span class="pill" data-value="dispute processing">Dispute Processing</span>
+          <span class="pill" data-value="AI or automated underwriting">AI Underwriting</span>
+          <span class="pill" data-value="third-party data">Third-Party Data</span>
+          <span class="pill" data-value="SMS or email marketing">SMS / Email Marketing</span>
+          <span class="pill" data-value="debt collections">Debt Collections</span>
+          <span class="pill" data-value="crypto integration">Crypto</span>
         </div>
       </div>
 
       <div class="field span2">
-        <label>Additional Context <span style="color:var(--gray-400);letter-spacing:0.05em;text-transform:none;font-size:0.7rem">(optional)</span></label>
-        <textarea id="context" placeholder="e.g. OCC-chartered sponsor bank, 6-state initial launch, existing CMS needs gap analysis, upcoming FDIC exam in Q3..."></textarea>
+        <label>Additional Context <span style="color:var(--gray-400);letter-spacing:.05em;text-transform:none;font-size:.7rem">(optional)</span></label>
+        <textarea id="context" placeholder="e.g. OCC-chartered sponsor bank, 6-state initial launch, upcoming FDIC exam in Q3..."></textarea>
       </div>
 
       <div class="err" id="errBox"></div>
-      <button class="btn-gen" id="genBtn" onclick="generate()">
-        ⬡ &nbsp;Generate My Compliance Package
-      </button>
+      <button class="btn-gen" id="genBtn" onclick="runGenerate()">⬡ &nbsp;Generate My Compliance Package</button>
       <div class="watermark-badge">© 2026 Karla Booe Advisory · AI-Assisted · Not Legal Advice</div>
     </div>
   </div>
 
-  <!-- LOADING -->
   <div id="loadingPane">
-    <div class="spin-wrapper"><div class="spin"></div><div class="spin-inner"></div></div>
+    <div class="spin-wrap"><div class="spin"></div></div>
     <div class="load-label" id="loadLabel">Analyzing program profile...</div>
-    <div class="load-sub">Scanning 25+ regulations · Building your three-document package</div>
-    <div class="load-dots"><div class="load-dot"></div><div class="load-dot"></div><div class="load-dot"></div></div>
+    <div class="load-sub">Scanning 25+ regulations · Building your package</div>
   </div>
 
-  <!-- RESULTS -->
   <div id="resultsPane">
     <button class="btn-reset" onclick="resetForm()">← Start Over</button>
     <div class="dl-bar">
@@ -425,28 +320,26 @@ footer { background: var(--navy); border-top: 1px solid var(--gold-dim); padding
         <p id="dlMeta">3 documents generated · review before use</p>
       </div>
       <div class="dl-btns">
-        <button class="btn-dl" onclick="exportExcel()">📊 Excel Matrix</button>
+        <button class="btn-dl" onclick="exportExcel()">📊 Excel</button>
         <button class="btn-dl" onclick="printDoc('checklist')">✅ Checklist PDF</button>
-        <button class="btn-dl" onclick="printDoc('bank')">🏦 Bank Summary PDF</button>
+        <button class="btn-dl" onclick="printDoc('bank')">🏦 Bank PDF</button>
         <button class="btn-dl-primary" onclick="exportAll()">⬇ Download All</button>
       </div>
     </div>
-
     <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab('matrix', this)"><span>📊</span> <span>Compliance Matrix</span></button>
-      <button class="tab-btn" onclick="switchTab('checklist', this)"><span>✅</span> <span>Day 0 Checklist</span></button>
-      <button class="tab-btn" onclick="switchTab('bank', this)"><span>🏦</span> <span>Bank Summary</span></button>
+      <button class="tab-btn active" onclick="switchTab('matrix',this)">📊 Compliance Matrix</button>
+      <button class="tab-btn" onclick="switchTab('checklist',this)">✅ Day 0 Checklist</button>
+      <button class="tab-btn" onclick="switchTab('bank',this)">🏦 Bank Summary</button>
     </div>
-
     <div class="result-card">
       <div class="tab-pane active" id="tab-matrix">
         <div class="prog-bar" id="progBar"></div>
         <div id="matrixContent"></div>
       </div>
       <div class="tab-pane" id="tab-checklist">
-        <div class="checklist-progress">
-          <span class="progress-label" id="progressText">0 of 0 complete</span>
-          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+        <div class="progress-wrap">
+          <span class="progress-lbl" id="progressText">0 of 0 complete</span>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
         </div>
         <div id="checklistContent"></div>
       </div>
@@ -454,271 +347,242 @@ footer { background: var(--navy); border-top: 1px solid var(--gold-dim); padding
         <div id="bankContent"></div>
       </div>
     </div>
-
-    <div class="disc"><strong>Important:</strong> This package is AI-generated from your inputs and is a starting framework only. All outputs must be reviewed and validated by a qualified compliance professional before use. Regulatory applicability varies by charter, state licensing, and contractual arrangements. <strong>This is not legal or regulatory advice.</strong></div>
-
+    <div class="disc"><strong>Important:</strong> This package is AI-generated and is a starting framework only. All outputs must be reviewed and validated by a qualified compliance professional before use. <strong>This is not legal or regulatory advice.</strong></div>
     <div class="cta">
-      <div class="cta-text">
+      <div>
         <h3>Need the validated, full-depth version?</h3>
-        <p>Get exam-ready control language, defensible evidence templates, and complete TSP/bank responsibility mapping — built and validated by a former enterprise compliance executive.</p>
+        <p>Get exam-ready control language, defensible evidence templates, and complete TSP/bank responsibility mapping.</p>
       </div>
-      <button class="btn-cta" onclick="alert('Coming soon — join the waitlist!')">Get the Full Toolkit →</button>
+      <button class="btn-cta" onclick="alert('Coming soon!')">Get the Full Toolkit →</button>
     </div>
   </div>
 </div>
 
 <footer>
   <div class="footer-logo">Karla Booe <em>Advisory</em></div>
-  <div class="footer-copy">© 2026 Karla Booe Advisory · All Rights Reserved · AI tools are for informational use only</div>
+  <div class="footer-copy">© 2026 Karla Booe Advisory · All Rights Reserved</div>
 </footer>
 
 <script>
-const API_KEY = '';
-let generatedData = null;
-let checkTotal = 0, checkDone = 0;
+var gData = null;
+var checkTotal = 0;
+var checkDone = 0;
 
-function togglePill(el, event) {
-  if (event) { event.preventDefault(); event.stopPropagation(); }
-  el.classList.toggle('on');
-  const cb = el.querySelector('input');
-  if (cb) cb.checked = el.classList.contains('on');
-  return false;
+// Pills
+document.querySelectorAll('.pill').forEach(function(pill) {
+  pill.addEventListener('click', function() {
+    this.classList.toggle('active');
+  });
+});
+
+function getFeatures() {
+  var selected = [];
+  document.querySelectorAll('.pill.active').forEach(function(p) {
+    selected.push(p.getAttribute('data-value'));
+  });
+  return selected;
 }
-function getFeatures() { return [...document.querySelectorAll('#pills .pill.on input')].map(i => i.value).filter(v => v); }
+
 function switchTab(name, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
   btn.classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
 }
+
 function resetForm() {
   document.getElementById('resultsPane').classList.remove('show');
   document.getElementById('resultsPane').style.display = 'none';
   document.getElementById('formCard').style.display = 'block';
-  generatedData = null;
+  gData = null;
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-const loadSteps = ['Analyzing program profile...','Scanning regulation library...','Mapping requirements and controls...','Building Day 0 checklist...','Drafting sponsor bank summary...','Finalizing your package...'];
-let loadTimer;
+var loadSteps = ['Analyzing program profile...','Scanning regulation library...','Mapping requirements and controls...','Building Day 0 checklist...','Drafting sponsor bank summary...','Finalizing your package...'];
+var loadTimer = null;
+
 function showLoad() {
   document.getElementById('loadingPane').classList.add('show');
-  let i = 0;
-  loadTimer = setInterval(() => { i = (i+1) % loadSteps.length; document.getElementById('loadLabel').textContent = loadSteps[i]; }, 2000);
+  var i = 0;
+  loadTimer = setInterval(function() {
+    i = (i + 1) % loadSteps.length;
+    document.getElementById('loadLabel').textContent = loadSteps[i];
+  }, 2000);
 }
-function hideLoad() { clearInterval(loadTimer); document.getElementById('loadingPane').classList.remove('show'); }
+
+function hideLoad() {
+  if (loadTimer) clearInterval(loadTimer);
+  document.getElementById('loadingPane').classList.remove('show');
+}
 
 function updateProgress() {
-  const pct = checkTotal > 0 ? Math.round((checkDone / checkTotal) * 100) : 0;
+  var pct = checkTotal > 0 ? Math.round((checkDone / checkTotal) * 100) : 0;
   document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressText').textContent = `${checkDone} of ${checkTotal} complete`;
-}
-
-/* ── EXCEL EXPORT ── */
-function exportExcel() {
-  if (!generatedData) return;
-  const d = generatedData;
-  const wb = XLSX.utils.book_new();
-
-  /* Sheet 1 — Compliance Matrix */
-  const matrixRows = [
-    ['COMPLIANCE MATRIX', '', '', '', '', ''],
-    [`Program: ${d.product}  |  Model: ${d.operatingModel}  |  Generated: ${new Date().toLocaleDateString()}  |  © 2026 Karla Booe Advisory`, '', '', '', '', ''],
-    [''],
-    ['Regulation', 'Priority', 'Requirement', 'Obligation Detail', 'Control', 'Responsibility', 'Evidence Type']
-  ];
-  d.regulations.forEach(r => {
-    r.requirements.forEach(req => {
-      matrixRows.push([r.name, r.priority.toUpperCase(), req.requirement, req.detail, req.control, req.responsibility, req.evidence]);
-    });
-  });
-  const ws1 = XLSX.utils.aoa_to_sheet(matrixRows);
-  ws1['!cols'] = [{ wch: 28 }, { wch: 10 }, { wch: 26 }, { wch: 42 }, { wch: 38 }, { wch: 16 }, { wch: 22 }];
-  XLSX.utils.book_append_sheet(wb, ws1, 'Compliance Matrix');
-
-  /* Sheet 2 — Day 0 Checklist */
-  const checkRows = [
-    ['DAY 0 LAUNCH CHECKLIST', '', '', '', ''],
-    [`Program: ${d.product}  |  ${d.operatingModel}  |  © 2026 Karla Booe Advisory`, '', '', '', ''],
-    [''],
-    ['Phase', 'Action Item', 'Detail', 'Owner', 'Status']
-  ];
-  d.checklist.forEach(section => {
-    section.items.forEach(item => {
-      checkRows.push([section.phase, item.action, item.detail, item.owner, '☐ Pending']);
-    });
-  });
-  const ws2 = XLSX.utils.aoa_to_sheet(checkRows);
-  ws2['!cols'] = [{ wch: 30 }, { wch: 36 }, { wch: 50 }, { wch: 14 }, { wch: 14 }];
-  XLSX.utils.book_append_sheet(wb, ws2, 'Day 0 Checklist');
-
-  /* Sheet 3 — Reg Summary */
-  const regRows = [
-    ['REGULATION SUMMARY', ''],
-    [`Program: ${d.product}  |  © 2026 Karla Booe Advisory`, ''],
-    [''],
-    ['Regulation', 'Priority', 'Scope', 'Requirement Count']
-  ];
-  d.regulations.forEach(r => {
-    regRows.push([r.name, r.priority.toUpperCase(), r.description, r.requirements.length]);
-  });
-  const ws3 = XLSX.utils.aoa_to_sheet(regRows);
-  ws3['!cols'] = [{ wch: 32 }, { wch: 12 }, { wch: 56 }, { wch: 18 }];
-  XLSX.utils.book_append_sheet(wb, ws3, 'Regulation Summary');
-
-  XLSX.writeFile(wb, `Compliance-Package-${d.product.replace(/\s+/g,'-')}-${new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}).replace(/\//g,'-')}.xlsx`);
-}
-
-/* ── PDF / PRINT ── */
-function printDoc(which) {
-  if (!generatedData) return;
-  const d = generatedData;
-  const styles = `<style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500&display=swap');
-    body{font-family:'Outfit',sans-serif;max-width:920px;margin:0 auto;padding:40px 32px;color:#0C1C35;background:#FFFEF9}
-    h1{font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:6px;font-weight:600}
-    h2{font-family:'Cormorant Garamond',serif;font-size:1.15rem;margin:24px 0 8px;color:#005F5F;border-left:3px solid #C8A84B;padding-left:12px}
-    table{width:100%;border-collapse:collapse;font-size:0.78rem;margin:10px 0}
-    th{background:#0C1C35;color:rgba(248,245,239,0.7);padding:8px 12px;text-align:left;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
-    td{padding:9px 12px;border:1px solid #DDD9D0;vertical-align:top;line-height:1.55}
-    tr:nth-child(even) td{background:#F8F5EF}
-    .meta{color:#9E9890;font-size:0.72rem;margin-bottom:24px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em}
-    .disc{background:#FFF7E6;border-left:3px solid #C8A84B;padding:12px 16px;font-size:0.74rem;color:#5C5850;margin-top:28px;line-height:1.65}
-    p{font-size:0.85rem;line-height:1.72;color:#5C5850;margin:6px 0}
-    .wm{position:fixed;bottom:16px;right:16px;font-family:'JetBrains Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;color:#DDD9D0;border:1px solid #EEE;padding:4px 10px;border-radius:2px}
-    @media print{.wm{position:fixed}}
-  </style>`;
-  let html = '';
-  if (which === 'checklist') {
-    html = `<!DOCTYPE html><html><head><title>Day 0 Checklist — ${d.product}</title>${styles}</head><body>
-    <div class="wm">© 2026 Karla Booe Advisory</div>
-    <h1>Day 0 Launch Checklist</h1>
-    <div class="meta">Program: ${d.product} · ${d.operatingModel} · Generated ${new Date().toLocaleDateString()}</div>
-    ${d.checklist.map(section => `<h2>${section.phase}</h2>
-    <table><thead><tr><th>#</th><th>Action Item</th><th>Details</th><th>Owner</th><th>Done ☐</th></tr></thead><tbody>
-    ${section.items.map((item,i) => `<tr><td>${i+1}</td><td><strong>${item.action}</strong></td><td style="font-size:0.75rem;color:#5C5850">${item.detail}</td><td style="font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:#008080">${item.owner}</td><td style="text-align:center">☐</td></tr>`).join('')}
-    </tbody></table>`).join('')}
-    <div class="disc">AI-generated framework only. Review and validate with a qualified compliance professional. © 2026 Karla Booe Advisory.</div>
-    </body></html>`;
-  } else {
-    html = `<!DOCTYPE html><html><head><title>Sponsor Bank Summary — ${d.product}</title>${styles}</head><body>
-    <div class="wm">© 2026 Karla Booe Advisory</div>
-    <h1>Sponsor Bank Compliance Summary</h1>
-    <div class="meta">Prepared for: Sponsor Bank Review · Program: ${d.product} · ${d.operatingModel} · ${new Date().toLocaleDateString()}</div>
-    ${d.bankSummary.sections.map(s => `<h2>${s.title}</h2>
-    ${s.paragraphs ? s.paragraphs.map(p => `<p>${p}</p>`).join('') : ''}
-    ${s.table ? `<table><thead><tr>${s.table.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${s.table.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>` : ''}`).join('')}
-    <div style="margin-top:32px;border-top:1px solid #DDD9D0;padding-top:20px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:16px">
-        <div><div style="font-size:0.68rem;color:#9E9890;font-family:'JetBrains Mono',monospace;margin-bottom:40px">Program Manager / Compliance Officer</div><div style="border-top:1px solid #2E2C28;padding-top:5px;font-size:0.72rem;color:#9E9890">Signature / Date</div></div>
-        <div><div style="font-size:0.68rem;color:#9E9890;font-family:'JetBrains Mono',monospace;margin-bottom:40px">Sponsor Bank Compliance Contact</div><div style="border-top:1px solid #2E2C28;padding-top:5px;font-size:0.72rem;color:#9E9890">Signature / Date</div></div>
-      </div>
-    </div>
-    <div class="disc">AI-generated framework only. Review and validate with a qualified compliance professional. © 2026 Karla Booe Advisory.</div>
-    </body></html>`;
-  }
-  const w = window.open('', '_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => w.print(), 600);
-}
-
-function exportAll() {
-  exportExcel();
-  setTimeout(() => printDoc('checklist'), 800);
-  setTimeout(() => printDoc('bank'), 1600);
-}
-
-/* ── RENDER ── */
-function renderMatrix(data) {
-  document.getElementById('progBar').innerHTML = `
-    <div class="prog-item"><div class="plabel">Product</div><div class="pval">${data.product}</div></div>
-    <div class="prog-item"><div class="plabel">Model</div><div class="pval">${data.operatingModel}</div></div>
-    <div class="prog-item"><div class="plabel">Regulator</div><div class="pval">${data.regulator || '—'}</div></div>
-    <div class="prog-item"><div class="plabel">Regulations</div><div class="pval">${data.regulations.length} scoped</div></div>
-    <div class="prog-item"><div class="plabel">Requirements</div><div class="pval">${data.regulations.reduce((a,r)=>a+r.requirements.length,0)} mapped</div></div>
-    <div class="prog-item"><div class="plabel">Generated</div><div class="pval">${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div></div>`;
-  document.getElementById('matrixContent').innerHTML = data.regulations.map((r,i) => `
-    <div class="reg-block ${i===0?'open':''}">
-      <div class="reg-head" onclick="this.closest('.reg-block').classList.toggle('open')">
-        <div class="priority-dot dot-${r.priority}"></div>
-        <div style="flex:1"><div class="reg-title">${r.name}</div><div class="reg-sub">${r.description}</div></div>
-        <span class="pri-tag pri-${r.priority}">${r.priority}</span>
-        <span class="chev">▼</span>
-      </div>
-      <div class="reg-rows">
-        <div class="col-headers"><div class="col-hdr">Requirement</div><div class="col-hdr">Control</div><div class="col-hdr">Responsibility</div><div class="col-hdr">Evidence</div></div>
-        ${r.requirements.map(req => `
-          <div class="req-row">
-            <div class="req-cell"><div class="req-name">${req.requirement}</div><div class="req-detail">${req.detail}</div></div>
-            <div class="req-cell" style="font-size:0.79rem;color:var(--gray-600)">${req.control}</div>
-            <div class="req-cell"><span class="resp-tag">${req.responsibility}</span></div>
-            <div class="req-cell"><span class="evi-tag">${req.evidence}</span></div>
-          </div>`).join('')}
-      </div>
-    </div>`).join('');
-}
-
-function renderChecklist(data) {
-  checkTotal = 0; checkDone = 0;
-  data.checklist.forEach(s => { checkTotal += s.items.length; });
-  updateProgress();
-  document.getElementById('checklistContent').innerHTML = data.checklist.map((section, si) => `
-    <div class="checklist-section">
-      <h3><div class="phase-num">${si+1}</div>${section.phase}</h3>
-      ${section.items.map(item => `
-        <div class="check-item" onclick="toggleCheck(this)">
-          <div class="check-box"></div>
-          <div class="check-text"><div class="check-label">${item.action}</div><div class="check-sub">${item.detail}</div></div>
-          <div class="check-owner">${item.owner}</div>
-        </div>`).join('')}
-    </div>`).join('');
+  document.getElementById('progressText').textContent = checkDone + ' of ' + checkTotal + ' complete';
 }
 
 function toggleCheck(el) {
-  const was = el.classList.contains('checked');
+  var was = el.classList.contains('checked');
   el.classList.toggle('checked');
   checkDone += was ? -1 : 1;
   updateProgress();
 }
 
-function renderBank(data) {
-  const bs = data.bankSummary;
-  document.getElementById('bankContent').innerHTML = `
-    <div class="bank-doc">
-      <div class="doc-header">
-        <h2>Compliance Program Summary — Sponsor Bank Review Package</h2>
-        <div class="meta">Program: ${data.product} · ${data.operatingModel} · Prepared: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
-      </div>
-      ${bs.sections.map(s => `
-        <div class="bank-section">
-          <h3>${s.title}</h3>
-          ${s.paragraphs ? s.paragraphs.map(p => `<p>${p}</p>`).join('') : ''}
-          ${s.table ? `<table class="bank-table"><thead><tr>${s.table.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${s.table.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>` : ''}
-        </div>`).join('')}
-      <div class="sig-block">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--gray-400);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px">Attestation & Acknowledgment</div>
-        <div class="sig-row">
-          <div class="sig-field"><div class="sig-label">Program Manager / Compliance Officer</div><div class="sig-line">Signature / Date</div></div>
-          <div class="sig-field"><div class="sig-label">Sponsor Bank Compliance Contact</div><div class="sig-line">Signature / Date</div></div>
-        </div>
-      </div>
-    </div>`;
+function renderMatrix(data) {
+  var pb = document.getElementById('progBar');
+  var reqCount = 0;
+  data.regulations.forEach(function(r) { reqCount += r.requirements.length; });
+  pb.innerHTML = '<div class="prog-item"><div class="plabel">Product</div><div class="pval">' + data.product + '</div></div>' +
+    '<div class="prog-item"><div class="plabel">Model</div><div class="pval">' + data.operatingModel + '</div></div>' +
+    '<div class="prog-item"><div class="plabel">Regulator</div><div class="pval">' + (data.regulator || '-') + '</div></div>' +
+    '<div class="prog-item"><div class="plabel">Regulations</div><div class="pval">' + data.regulations.length + ' scoped</div></div>' +
+    '<div class="prog-item"><div class="plabel">Requirements</div><div class="pval">' + reqCount + ' mapped</div></div>';
+
+  var html = '';
+  data.regulations.forEach(function(r, i) {
+    html += '<div class="reg-block' + (i === 0 ? ' open' : '') + '">' +
+      '<div class="reg-head" onclick="this.closest(\'.reg-block\').classList.toggle(\'open\')">' +
+      '<div class="priority-dot dot-' + r.priority + '"></div>' +
+      '<div style="flex:1"><div class="reg-title">' + r.name + '</div><div class="reg-sub">' + r.description + '</div></div>' +
+      '<span class="pri-tag pri-' + r.priority + '">' + r.priority + '</span>' +
+      '<span class="chev">▼</span></div>' +
+      '<div class="reg-rows">' +
+      '<div class="col-headers"><div class="col-hdr">Requirement</div><div class="col-hdr">Control</div><div class="col-hdr">Responsibility</div><div class="col-hdr">Evidence</div></div>';
+    r.requirements.forEach(function(req) {
+      html += '<div class="req-row">' +
+        '<div class="req-cell"><div class="req-name">' + req.requirement + '</div><div class="req-detail">' + req.detail + '</div></div>' +
+        '<div class="req-cell" style="font-size:.78rem;color:var(--gray-600)">' + req.control + '</div>' +
+        '<div class="req-cell"><span class="resp-tag">' + req.responsibility + '</span></div>' +
+        '<div class="req-cell"><span class="evi-tag">' + req.evidence + '</span></div></div>';
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('matrixContent').innerHTML = html;
 }
 
-/* ── GENERATE ── */
-async function generate() {
-  const product = document.getElementById('productType').value;
-  const model = document.getElementById('operatingModel').value;
-  const segment = document.getElementById('segment').value;
-  const credit = document.getElementById('creditReporting').value;
-  const regulator = document.getElementById('regulator').value;
-  const stage = document.getElementById('stage').value;
-  const features = getFeatures();
-  const context = document.getElementById('context').value;
+function renderChecklist(data) {
+  checkTotal = 0; checkDone = 0;
+  data.checklist.forEach(function(s) { checkTotal += s.items.length; });
+  updateProgress();
+  var html = '';
+  data.checklist.forEach(function(section, si) {
+    html += '<div class="checklist-section"><h3><div class="phase-num">' + (si + 1) + '</div>' + section.phase + '</h3>';
+    section.items.forEach(function(item) {
+      html += '<div class="check-item" onclick="toggleCheck(this)">' +
+        '<div class="check-box"></div>' +
+        '<div class="check-text"><div class="check-label">' + item.action + '</div><div class="check-sub">' + item.detail + '</div></div>' +
+        '<div class="check-owner">' + item.owner + '</div></div>';
+    });
+    html += '</div>';
+  });
+  document.getElementById('checklistContent').innerHTML = html;
+}
+
+function renderBank(data) {
+  var bs = data.bankSummary;
+  var html = '<div class="bank-doc"><div class="doc-header"><h2>Compliance Program Summary — Sponsor Bank Review Package</h2>' +
+    '<div class="meta">Program: ' + data.product + ' · ' + data.operatingModel + ' · ' + new Date().toLocaleDateString('en-US', {month:'long',day:'numeric',year:'numeric'}) + '</div></div>';
+  bs.sections.forEach(function(s) {
+    html += '<div class="bank-section"><h3>' + s.title + '</h3>';
+    if (s.paragraphs) {
+      s.paragraphs.forEach(function(p) { html += '<p>' + p + '</p>'; });
+    }
+    if (s.table) {
+      html += '<table class="bank-table"><thead><tr>';
+      s.table.headers.forEach(function(h) { html += '<th>' + h + '</th>'; });
+      html += '</tr></thead><tbody>';
+      s.table.rows.forEach(function(row) {
+        html += '<tr>';
+        row.forEach(function(cell) { html += '<td>' + cell + '</td>'; });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+    }
+    html += '</div>';
+  });
+  html += '<div class="sig-block"><div style="font-family:\'JetBrains Mono\',monospace;font-size:.6rem;color:var(--gray-400);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px">Attestation</div>' +
+    '<div class="sig-row"><div class="sig-field"><div class="sig-lbl">Program Manager / Compliance Officer</div><div class="sig-line">Signature / Date</div></div>' +
+    '<div class="sig-field"><div class="sig-lbl">Sponsor Bank Compliance Contact</div><div class="sig-line">Signature / Date</div></div></div></div></div>';
+  document.getElementById('bankContent').innerHTML = html;
+}
+
+function exportExcel() {
+  if (!gData) return;
+  var wb = XLSX.utils.book_new();
+  var rows = [['COMPLIANCE MATRIX'],['Program: ' + gData.product + ' | ' + gData.operatingModel],[''],
+    ['Regulation','Priority','Requirement','Detail','Control','Responsibility','Evidence']];
+  gData.regulations.forEach(function(r) {
+    r.requirements.forEach(function(req) {
+      rows.push([r.name, r.priority.toUpperCase(), req.requirement, req.detail, req.control, req.responsibility, req.evidence]);
+    });
+  });
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:28},{wch:10},{wch:26},{wch:40},{wch:36},{wch:16},{wch:22}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Compliance Matrix');
+
+  var rows2 = [['DAY 0 CHECKLIST'],['Program: ' + gData.product],[''],['Phase','Action','Detail','Owner','Done']];
+  gData.checklist.forEach(function(s) {
+    s.items.forEach(function(item) { rows2.push([s.phase, item.action, item.detail, item.owner, '☐']); });
+  });
+  var ws2 = XLSX.utils.aoa_to_sheet(rows2);
+  ws2['!cols'] = [{wch:28},{wch:34},{wch:48},{wch:14},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Day 0 Checklist');
+
+  XLSX.writeFile(wb, 'Compliance-Package-' + gData.product.replace(/\s+/g,'-') + '.xlsx');
+}
+
+function printDoc(which) {
+  if (!gData) return;
+  var d = gData;
+  var styles = '<style>body{font-family:Georgia,serif;max-width:900px;margin:0 auto;padding:32px;color:#0C1C35}h1{font-size:1.5rem;margin-bottom:6px}h2{font-size:1rem;margin:20px 0 8px;color:#005F5F;border-left:3px solid #C8A84B;padding-left:10px}table{width:100%;border-collapse:collapse;font-size:.78rem;margin:10px 0}th{background:#0C1C35;color:rgba(248,245,239,.7);padding:7px 10px;text-align:left;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase}td{padding:8px 10px;border:1px solid #ddd;vertical-align:top;line-height:1.5}tr:nth-child(even) td{background:#f9f7f3}.meta{color:#888;font-size:.72rem;margin-bottom:20px;font-family:monospace}.disc{background:#fff7e6;border-left:3px solid #C8A84B;padding:12px 14px;font-size:.74rem;color:#555;margin-top:24px;line-height:1.6}p{font-size:.84rem;line-height:1.72;color:#5C5850;margin:5px 0}.wm{position:fixed;bottom:14px;right:14px;font-family:monospace;font-size:.55rem;color:#ddd;border:1px solid #eee;padding:3px 8px}</style>';
+  var html = '<!DOCTYPE html><html><head><title>' + (which === 'checklist' ? 'Day 0 Checklist' : 'Bank Summary') + ' — ' + d.product + '</title>' + styles + '</head><body><div class="wm">© 2026 Karla Booe Advisory</div>';
+  if (which === 'checklist') {
+    html += '<h1>Day 0 Launch Checklist</h1><div class="meta">Program: ' + d.product + ' · ' + new Date().toLocaleDateString() + '</div>';
+    d.checklist.forEach(function(s) {
+      html += '<h2>' + s.phase + '</h2><table><thead><tr><th>#</th><th>Action</th><th>Detail</th><th>Owner</th><th>Done</th></tr></thead><tbody>';
+      s.items.forEach(function(item, i) {
+        html += '<tr><td>' + (i+1) + '</td><td><strong>' + item.action + '</strong></td><td>' + item.detail + '</td><td style="font-family:monospace;font-size:.68rem;color:#008080">' + item.owner + '</td><td>☐</td></tr>';
+      });
+      html += '</tbody></table>';
+    });
+  } else {
+    html += '<h1>Sponsor Bank Compliance Summary</h1><div class="meta">Program: ' + d.product + ' · ' + d.operatingModel + ' · ' + new Date().toLocaleDateString() + '</div>';
+    d.bankSummary.sections.forEach(function(s) {
+      html += '<h2>' + s.title + '</h2>';
+      if (s.paragraphs) s.paragraphs.forEach(function(p) { html += '<p>' + p + '</p>'; });
+      if (s.table) {
+        html += '<table><thead><tr>' + s.table.headers.map(function(h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>';
+        s.table.rows.forEach(function(row) { html += '<tr>' + row.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; });
+        html += '</tbody></table>';
+      }
+    });
+    html += '<div style="margin-top:28px;border-top:1px solid #ddd;padding-top:18px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:36px;margin-top:14px"><div><div style="font-size:.68rem;color:#888;font-family:monospace;margin-bottom:36px">Program Manager / Compliance Officer</div><div style="border-top:1px solid #333;padding-top:4px;font-size:.72rem;color:#888">Signature / Date</div></div><div><div style="font-size:.68rem;color:#888;font-family:monospace;margin-bottom:36px">Sponsor Bank Compliance Contact</div><div style="border-top:1px solid #333;padding-top:4px;font-size:.72rem;color:#888">Signature / Date</div></div></div></div>';
+  }
+  html += '<div class="disc">AI-generated framework only. Review with a qualified compliance professional. © 2026 Karla Booe Advisory.</div></body></html>';
+  var w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function() { w.print(); }, 600);
+}
+
+function exportAll() {
+  exportExcel();
+  setTimeout(function() { printDoc('checklist'); }, 800);
+  setTimeout(function() { printDoc('bank'); }, 1600);
+}
+
+async function runGenerate() {
+  var product = document.getElementById('productType').value;
+  var model = document.getElementById('operatingModel').value;
+  var segment = document.getElementById('segment').value;
+  var credit = document.getElementById('creditReporting').value;
+  var regulator = document.getElementById('regulator').value;
+  var stage = document.getElementById('stage').value;
+  var features = getFeatures();
+  var context = document.getElementById('context').value;
 
   if (!product || !model || !segment || !credit || !regulator || !stage) {
-    const e = document.getElementById('errBox');
+    var e = document.getElementById('errBox');
     e.textContent = 'Please complete all required fields before generating.';
     e.classList.add('show');
     return;
@@ -727,60 +591,41 @@ async function generate() {
   document.getElementById('formCard').style.display = 'none';
   showLoad();
 
-  const prompt = `You are a compliance expert. Return ONLY a valid JSON object. No markdown. No backticks. No explanation. No line breaks inside string values. All string values must use double quotes and must not contain unescaped quotes or newlines.
-
-Program: ${product} | ${model} | ${segment} | ${credit} | ${regulator} | ${stage} | Features: ${features.length ? features.join(', ') : 'none'} | Context: ${context || 'none'}
-
-Return exactly this structure with real data:
-{"product":"name","operatingModel":"model","regulator":"reg","regulations":[{"name":"reg name","description":"one sentence","priority":"high","requirements":[{"requirement":"name","detail":"one sentence","control":"one sentence","responsibility":"TSP","evidence":"type"}]}],"checklist":[{"phase":"phase name","items":[{"action":"action","detail":"one sentence","owner":"owner"}]}],"bankSummary":{"sections":[{"title":"Program Overview","paragraphs":["paragraph text"]},{"title":"TSP vs Bank Responsibility Matrix","table":{"headers":["Area","TSP Responsible","Bank Responsible","Shared"],"rows":[["Compliance Program","TSP","Bank","Both"]]}},{"title":"Key Risk Factors","paragraphs":["risk text"]},{"title":"Ongoing Oversight","paragraphs":["oversight text"]}]}}
-
-Rules: 4 regulations, 3 requirements each. 3 checklist phases, 4 items each. Keep all string values short and clean. No apostrophes in values - use alternative wording instead.`;
+  var prompt = 'You are a senior compliance expert. Return ONLY a valid JSON object. No text before or after the JSON. No markdown. No backticks. Use only double quotes. No apostrophes in values - use alternative wording.\n\n' +
+    'Program: ' + product + ' | ' + model + ' | ' + segment + ' | Credit reporting: ' + credit + ' | Regulator: ' + regulator + ' | Stage: ' + stage +
+    (features.length ? ' | Features: ' + features.join(', ') : '') +
+    (context ? ' | Context: ' + context : '') + '\n\n' +
+    'Return this exact JSON with real compliance data for this specific program:\n' +
+    '{"product":"short name","operatingModel":"short model","regulator":"reg name","regulations":[{"name":"Regulation Z (TILA)","description":"one sentence description","priority":"high","requirements":[{"requirement":"short name","detail":"one sentence obligation","control":"specific control","responsibility":"TSP","evidence":"evidence type"}]}],"checklist":[{"phase":"Pre-Launch 90 Days","items":[{"action":"action item","detail":"one sentence","owner":"Compliance"}]}],"bankSummary":{"sections":[{"title":"Program Overview","paragraphs":["paragraph text"]},{"title":"Regulatory Scope","paragraphs":["scope text"]},{"title":"TSP vs Bank Responsibility Matrix","table":{"headers":["Compliance Area","TSP Responsible","Bank Responsible","Shared"],"rows":[["CMS Program","Design and implement CMS","Review and approve","Ongoing oversight"]]}},{"title":"Key Risk Factors","paragraphs":["risk text"]},{"title":"Ongoing Oversight","paragraphs":["oversight commitments"]}]}}\n\n' +
+    'Requirements: Include 4-5 regulations that genuinely apply to this program with 3 requirements each. Include 3 checklist phases with 4-5 items each. Be specific to this exact program type. No generic boilerplate.';
 
   try {
-    const res = await fetch('/api/claude', {
+    var res = await fetch('/api/claude', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json',    },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] })
     });
-    const apiData = await res.json();
+    var apiData = await res.json();
     hideLoad();
-    if (!res.ok) throw new Error(apiData.error?.message || 'API error');
-    const text = apiData.content.map(b => b.text || '').join('');
-    let clean = text.replace(/```json|```/g, '').trim();
-    const jsonStart = clean.indexOf('{');
-    const jsonEnd = clean.lastIndexOf('}');
-    if (jsonStart !== -1 && jsonEnd !== -1) {
-      clean = clean.substring(jsonStart, jsonEnd + 1);
-    }
-    // Fix common JSON issues
-    clean = clean
-      .replace(/,\s*}/g, '}')
-      .replace(/,\s*]/g, ']')
-      .replace(/[ --]/g, ' ')
-      .replace(/
-/g, ' ')
-      .replace(/
-/g, ' ')
-      .replace(/	/g, ' ');
-    try {
-      generatedData = JSON.parse(clean);
-    } catch(e) {
-      // Try to repair malformed JSON
-      const repaired = jsonrepair(clean);
-      generatedData = JSON.parse(repaired);
-    }
-    renderMatrix(generatedData);
-    renderChecklist(generatedData);
-    renderBank(generatedData);
-    document.getElementById('dlMeta').textContent = `${generatedData.product} · ${generatedData.operatingModel} · ${new Date().toLocaleDateString()}`;
+    if (!res.ok) throw new Error((apiData.error && apiData.error.message) || 'API error');
+    var text = apiData.content.map(function(b) { return b.text || ''; }).join('');
+    var clean = text.replace(/```json|```/g, '').trim();
+    var jsonStart = clean.indexOf('{');
+    var jsonEnd = clean.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1) clean = clean.substring(jsonStart, jsonEnd + 1);
+    gData = JSON.parse(clean);
+    renderMatrix(gData);
+    renderChecklist(gData);
+    renderBank(gData);
+    document.getElementById('dlMeta').textContent = gData.product + ' · ' + gData.operatingModel + ' · ' + new Date().toLocaleDateString();
     document.getElementById('resultsPane').style.display = 'block';
     document.getElementById('resultsPane').classList.add('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  } catch (err) {
+  } catch(err) {
     hideLoad();
     document.getElementById('formCard').style.display = 'block';
-    const e = document.getElementById('errBox');
-    e.textContent = `Error: ${err.message}. Please try again.`;
+    var e = document.getElementById('errBox');
+    e.textContent = 'Error: ' + err.message + '. Please try again.';
     e.classList.add('show');
   }
 }
