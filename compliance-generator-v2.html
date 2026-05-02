@@ -591,15 +591,48 @@ async function runGenerate() {
   document.getElementById('formCard').style.display = 'none';
   showLoad();
 
-  var prompt = 'You are a senior compliance expert. Return ONLY a valid JSON object. No text before or after the JSON. No markdown. No backticks. Use only double quotes. No apostrophes in values - use alternative wording.\n\n' +
-    'Program: ' + product + ' | ' + model + ' | ' + segment + ' | Credit reporting: ' + credit + ' | Regulator: ' + regulator + ' | Stage: ' + stage +
-    (features.length ? ' | Features: ' + features.join(', ') : '') +
-    (context ? ' | Context: ' + context : '') + '\n\n' +
-    'Return this exact JSON with real compliance data for this specific program:\n' +
-    '{"product":"short name","operatingModel":"short model","regulator":"reg name","regulations":[{"name":"Regulation Z (TILA)","description":"one sentence description","priority":"high","requirements":[{"requirement":"short name","detail":"one sentence obligation","control":"specific control","responsibility":"TSP","evidence":"evidence type"}]}],"checklist":[{"phase":"Pre-Launch 90 Days","items":[{"action":"action item","detail":"one sentence","owner":"Compliance"}]}],"bankSummary":{"sections":[{"title":"Program Overview","paragraphs":["paragraph text"]},{"title":"Regulatory Scope","paragraphs":["scope text"]},{"title":"TSP vs Bank Responsibility Matrix","table":{"headers":["Compliance Area","TSP Responsible","Bank Responsible","Shared"],"rows":[["CMS Program","Design and implement CMS","Review and approve","Ongoing oversight"]]}},{"title":"Key Risk Factors","paragraphs":["risk text"]},{"title":"Ongoing Oversight","paragraphs":["oversight commitments"]}]}}\n\n' +
-    'Requirements: Include 4-5 regulations that genuinely apply to this program with 3 requirements each. Include 3 checklist phases with 4-5 items each. Be specific to this exact program type. No generic boilerplate.';
+  // Build a simpler, shorter prompt to avoid JSON errors
+  var featStr = features.length ? features.join(', ') : 'none';
+  var contextStr = context || 'none';
+  
+  var prompt = 'Return ONLY valid JSON. No markdown. No backticks. No apostrophes in any values - write around them.' +
+    ' Program: ' + product + ', ' + model + ', ' + segment + ', credit reporting: ' + credit + 
+    ', regulator: ' + regulator + ', stage: ' + stage + ', features: ' + featStr + ', context: ' + contextStr +
+    '. Return this JSON structure exactly: ' +
+    '{' +
+      '"product":"' + product + '",' +
+      '"operatingModel":"' + model + '",' +
+      '"regulator":"' + regulator + '",' +
+      '"regulations":[' +
+        '{"name":"REG_NAME","description":"DESCRIPTION","priority":"high",' +
+          '"requirements":[' +
+            '{"requirement":"REQ_NAME","detail":"DETAIL","control":"CONTROL","responsibility":"TSP","evidence":"EVIDENCE"},' +
+            '{"requirement":"REQ_NAME","detail":"DETAIL","control":"CONTROL","responsibility":"Bank","evidence":"EVIDENCE"},' +
+            '{"requirement":"REQ_NAME","detail":"DETAIL","control":"CONTROL","responsibility":"Shared","evidence":"EVIDENCE"}' +
+          ']}' +
+      '],' +
+      '"checklist":[' +
+        '{"phase":"Pre-Launch 90 Days","items":[' +
+          '{"action":"ACTION","detail":"DETAIL","owner":"Compliance"},' +
+          '{"action":"ACTION","detail":"DETAIL","owner":"Legal"},' +
+          '{"action":"ACTION","detail":"DETAIL","owner":"Tech"},' +
+          '{"action":"ACTION","detail":"DETAIL","owner":"Ops"}' +
+        ']}' +
+      '],' +
+      '"bankSummary":{"sections":[' +
+        '{"title":"Program Overview","paragraphs":["OVERVIEW_TEXT"]},' +
+        '{"title":"Regulatory Scope","paragraphs":["SCOPE_TEXT"]},' +
+        '{"title":"TSP vs Bank Responsibility Matrix","table":{"headers":["Area","TSP","Bank","Shared"],"rows":[["CMS","Design","Approve","Monitor"],["Complaints","Handle","Review","Report"],["Training","Execute","Oversight","Policy"]]}},' +
+        '{"title":"Key Risk Factors","paragraphs":["RISK_TEXT"]},' +
+        '{"title":"Ongoing Oversight","paragraphs":["OVERSIGHT_TEXT"]}' +
+      ']}' +
+    '}.' +
+    ' Replace all REG_NAME, DESCRIPTION, REQ_NAME, DETAIL, CONTROL, EVIDENCE, ACTION, and text values with real specific content for this exact program.' +
+    ' Include 4 regulations total with 3 requirements each.' +
+    ' Include 3 checklist phases with 4 items each.' +
+    ' CRITICAL: Use only double quotes. Never use apostrophes. Write "does not" instead of "doesn't", "it is" instead of "it's", etc.';
 
-  try {
+    try {
     var res = await fetch('/api/claude', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -613,6 +646,12 @@ async function runGenerate() {
     var jsonStart = clean.indexOf('{');
     var jsonEnd = clean.lastIndexOf('}');
     if (jsonStart !== -1 && jsonEnd !== -1) clean = clean.substring(jsonStart, jsonEnd + 1);
+    // Robust JSON cleaning
+    clean = clean
+      .replace(/[ --]/g, ' ')  // control chars
+      .replace(/,(\s*[}\]])/g, '$1')                    // trailing commas
+      .replace(/([^\])'s /g, '$1s ')                   // possessives
+      .replace(/([^\])'/g, '$1');                       // remaining apostrophes
     gData = JSON.parse(clean);
     renderMatrix(gData);
     renderChecklist(gData);
