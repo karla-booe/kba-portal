@@ -649,6 +649,8 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
         return JSON.parse(str);
       }
 
+      console.log('TEXT1 length:', text1.length, 'last 100:', text1.slice(-100));
+      console.log('TEXT2 length:', text2.length, 'last 100:', text2.slice(-100));
       var data1 = extractJSON(text1);
       var data2 = extractJSON(text2);
 
