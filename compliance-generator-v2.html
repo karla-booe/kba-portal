@@ -609,6 +609,266 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
     var rawText = '';  // Store raw API response for debugging
 
     // CALL 1: Matrix + Checklist
+    var prompt1 = 'You are a senior compliance expert. Return ONLY valid JSON. No markdown. No backticks. No apostrophes in any string values.' +
+      ' Generate a compliance regulation matrix for: Product=' + product + ', Model=' + model + ', Segment=' + segment + ', Regulator=' + regulator + ', Stage=' + stage + ', Features=' + featStr +
+      '. Return ONLY this structure with 5-6 regulations that genuinely apply to this program:' +
+      '{' +
+        '"product":"' + product.replace(/"/g,'') + '",' +
+        '"operatingModel":"' + model.replace(/"/g,'') + '",' +
+        '"regulator":"' + regulator.replace(/"/g,'') + '",' +
+        '"regulations":[' +
+          '{"name":"[REG NAME]","description":"[ONE SENTENCE]","priority":"high","requirements":[' +
+            '{"requirement":"[NAME]","detail":"[SPECIFIC OBLIGATION FOR THIS PROGRAM]","control":"[OPERATIONAL CONTROL]","responsibility":"[TSP or Bank or Shared or Compliance]","evidence":"[EVIDENCE TYPE]"},' +
+            '{"requirement":"[NAME]","detail":"[SPECIFIC OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+            '{"requirement":"[NAME]","detail":"[SPECIFIC OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"}]},' +
+          '{"name":"[REG NAME]","description":"[ONE SENTENCE]","priority":"high","requirements":[' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"}]},' +
+          '{"name":"[REG NAME]","description":"[ONE SENTENCE]","priority":"high","requirements":[' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"}]},' +
+          '{"name":"[REG NAME]","description":"[ONE SENTENCE]","priority":"med","requirements":[' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"}]},' +
+          '{"name":"[REG NAME]","description":"[ONE SENTENCE]","priority":"low","requirements":[' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+            '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"}]}' +
+        ']' +
+      '}' +
+      '. Replace every bracketed placeholder with real specific content. Be specific and operational. No apostrophes ever.';
+
+    var prompt2 = 'You are a senior compliance expert. Return ONLY valid JSON. No markdown. No backticks. No apostrophes in any string values.' +
+      ' Generate a compliance checklist and bank summary for: Product=' + product + ', Model=' + model + ', Segment=' + segment + ', Regulator=' + regulator + ', Stage=' + stage +
+      '. Return ONLY this structure:' +
+      '{' +
+        '"checklist":[' +
+          '{"phase":"Pre-Launch 90 Days","items":[' +
+            '{"action":"[ACTION]","detail":"[SPECIFIC DETAIL FOR THIS PROGRAM]","owner":"Compliance"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Legal"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Tech"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Ops"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"}]},' +
+          '{"phase":"Pre-Launch 30 Days","items":[' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Legal"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Tech"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Ops"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"}]},' +
+          '{"phase":"Post-Launch 30 Days","items":[' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Legal"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Tech"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Ops"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"}]}],' +
+        '"bankSummary":{"sections":[' +
+          '{"title":"Program Overview","paragraphs":["[OVERVIEW]"]},' +
+          '{"title":"Regulatory Scope","paragraphs":["[SCOPE]"]},' +
+          '{"title":"TSP vs Bank Responsibility Matrix","table":{"headers":["Area","TSP","Bank","Shared"],"rows":[["[AREA]","[TSP]","[BANK]","[SHARED]"],["[AREA]","[TSP]","[BANK]","[SHARED]"],["[AREA]","[TSP]","[BANK]","[SHARED]"],["[AREA]","[TSP]","[BANK]","[SHARED]"]]}},' +
+          '{"title":"Key Risk Factors","paragraphs":["[RISKS]"]},' +
+          '{"title":"Ongoing Oversight","paragraphs":["[OVERSIGHT]"]}' +
+        ']}' +
+      '}' +
+      '. Replace every bracketed placeholder with real specific content for this ' + product + ' program. No apostrophes.';
+
+    document.getElementById('loaderLbl').textContent = loadSteps[i];
+    }, 2000);
+  }
+  function hideLoader() {
+    if (loadTimer) clearInterval(loadTimer);
+    document.getElementById('loader').classList.remove('show');
+  }
+
+  // Progress
+  function updateProgress() {
+    var pct = clTotal > 0 ? Math.round((clDone / clTotal) * 100) : 0;
+    document.getElementById('clFill').style.width = pct + '%';
+    document.getElementById('clProgress').textContent = clDone + ' of ' + clTotal + ' complete';
+  }
+
+  // Render matrix
+  function renderMatrix(d) {
+    var reqCount = d.regulations.reduce(function(a, r) { return a + r.requirements.length; }, 0);
+    document.getElementById('progBar').innerHTML =
+      '<div><div class="lbl">Product</div><div class="val">' + d.product + '</div></div>' +
+      '<div><div class="lbl">Model</div><div class="val">' + d.operatingModel + '</div></div>' +
+      '<div><div class="lbl">Regulator</div><div class="val">' + (d.regulator || '-') + '</div></div>' +
+      '<div><div class="lbl">Regulations</div><div class="val">' + d.regulations.length + ' scoped</div></div>' +
+      '<div><div class="lbl">Requirements</div><div class="val">' + reqCount + ' mapped</div></div>';
+
+    var html = '';
+    d.regulations.forEach(function(r, i) {
+      var p = (r.priority || 'med').toLowerCase();
+      html += '<div class="reg-block' + (i === 0 ? ' open' : '') + '">' +
+        '<div class="reg-head">' +
+        '<div class="dot ' + p + '"></div>' +
+        '<div style="flex:1"><div class="reg-name">' + r.name + '</div><div class="reg-desc">' + r.description + '</div></div>' +
+        '<span class="pri ' + p + '">' + p + '</span>' +
+        '<span class="chev">▼</span></div>' +
+        '<div class="req-rows">' +
+        '<div class="col-hds"><div class="col-hd">Requirement</div><div class="col-hd">Control</div><div class="col-hd">Responsibility</div><div class="col-hd">Evidence</div></div>';
+      r.requirements.forEach(function(req) {
+        html += '<div class="req-row">' +
+          '<div class="req-cell"><div class="req-name">' + req.requirement + '</div><div class="req-det">' + req.detail + '</div></div>' +
+          '<div class="req-cell" style="font-size:.77rem;color:var(--gray-600)">' + req.control + '</div>' +
+          '<div class="req-cell"><span class="resp">' + req.responsibility + '</span></div>' +
+          '<div class="req-cell"><span class="evi">' + req.evidence + '</span></div></div>';
+      });
+      html += '</div></div>';
+    });
+    document.getElementById('matrixContent').innerHTML = html;
+
+    // Toggle reg blocks
+    document.querySelectorAll('.reg-head').forEach(function(head) {
+      head.addEventListener('click', function() {
+        this.closest('.reg-block').classList.toggle('open');
+      });
+    });
+  }
+
+  // Render checklist
+  function renderChecklist(d) {
+    clTotal = 0; clDone = 0;
+    d.checklist.forEach(function(s) { clTotal += s.items.length; });
+    updateProgress();
+    var html = '';
+    d.checklist.forEach(function(section, si) {
+      html += '<div class="cl-section"><h3><div class="phnum">' + (si + 1) + '</div>' + section.phase + '</h3>';
+      section.items.forEach(function(item) {
+        html += '<div class="cl-item">' +
+          '<div class="cb"></div>' +
+          '<div class="cl-txt"><div class="cl-lbl">' + item.action + '</div><div class="cl-sub">' + item.detail + '</div></div>' +
+          '<div class="cl-own">' + item.owner + '</div></div>';
+      });
+      html += '</div>';
+    });
+    document.getElementById('checklistContent').innerHTML = html;
+    document.querySelectorAll('.cl-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        var was = this.classList.contains('done');
+        this.classList.toggle('done');
+        clDone += was ? -1 : 1;
+        updateProgress();
+      });
+    });
+  }
+
+  // Render bank
+  function renderBank(d) {
+    var bs = d.bankSummary;
+    var date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    var html = '<div class="bank-head"><h2>Compliance Program Summary — Sponsor Bank Review</h2>' +
+      '<div class="meta">Program: ' + d.product + ' · ' + d.operatingModel + ' · ' + date + '</div></div>';
+    bs.sections.forEach(function(s) {
+      html += '<div class="bank-sec"><h3>' + s.title + '</h3>';
+      if (s.paragraphs) s.paragraphs.forEach(function(p) { html += '<p>' + p + '</p>'; });
+      if (s.table) {
+        html += '<table class="btable"><thead><tr>' +
+          s.table.headers.map(function(h) { return '<th>' + h + '</th>'; }).join('') +
+          '</tr></thead><tbody>';
+        s.table.rows.forEach(function(row) {
+          html += '<tr>' + row.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
+        });
+        html += '</tbody></table>';
+      }
+      html += '</div>';
+    });
+    html += '<div class="sig"><div style="font-family:\'JetBrains Mono\',monospace;font-size:.58rem;color:var(--gray-400);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">Attestation</div>' +
+      '<div class="sig-row">' +
+      '<div class="sig-f"><div class="sig-lbl">Program Manager / Compliance Officer</div><div class="sig-line">Signature / Date</div></div>' +
+      '<div class="sig-f"><div class="sig-lbl">Sponsor Bank Compliance Contact</div><div class="sig-line">Signature / Date</div></div>' +
+      '</div></div>';
+    document.getElementById('bankContent').innerHTML = html;
+  }
+
+  // Excel export
+  function exportExcel() {
+    if (!gData) return;
+    var wb = XLSX.utils.book_new();
+    var rows = [['COMPLIANCE MATRIX'], ['Program: ' + gData.product + ' | ' + gData.operatingModel + ' | Generated: ' + new Date().toLocaleDateString() + ' | (c) 2026 Karla Booe Advisory'], [''],
+      ['Regulation', 'Priority', 'Requirement', 'Detail', 'Control', 'Responsibility', 'Evidence']];
+    gData.regulations.forEach(function(r) {
+      r.requirements.forEach(function(req) {
+        rows.push([r.name, (r.priority || '').toUpperCase(), req.requirement, req.detail, req.control, req.responsibility, req.evidence]);
+      });
+    });
+    var ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{ wch: 26 }, { wch: 10 }, { wch: 24 }, { wch: 40 }, { wch: 36 }, { wch: 14 }, { wch: 22 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Compliance Matrix');
+    var rows2 = [['DAY 0 CHECKLIST'], ['Program: ' + gData.product], [''], ['Phase', 'Action', 'Detail', 'Owner', 'Done']];
+    gData.checklist.forEach(function(s) {
+      s.items.forEach(function(item) { rows2.push([s.phase, item.action, item.detail, item.owner, '\u2610']); });
+    });
+    var ws2 = XLSX.utils.aoa_to_sheet(rows2);
+    ws2['!cols'] = [{ wch: 26 }, { wch: 32 }, { wch: 46 }, { wch: 14 }, { wch: 8 }];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Day 0 Checklist');
+    XLSX.writeFile(wb, 'Compliance-Package-' + gData.product.replace(/\s+/g, '-') + '.xlsx');
+  }
+
+  // Print doc
+  function printDoc(which) {
+    if (!gData) return;
+    var d = gData;
+    var s = '<style>body{font-family:Georgia,serif;max-width:900px;margin:0 auto;padding:30px;color:#0C1C35}h1{font-size:1.4rem;margin-bottom:5px}h2{font-size:.95rem;margin:18px 0 7px;color:#005F5F;border-left:3px solid #C8A84B;padding-left:9px}table{width:100%;border-collapse:collapse;font-size:.77rem;margin:8px 0}th{background:#0C1C35;color:rgba(248,245,239,.7);padding:6px 9px;text-align:left;font-size:.58rem;letter-spacing:.07em;text-transform:uppercase}td{padding:7px 9px;border:1px solid #ddd;vertical-align:top;line-height:1.5}tr:nth-child(even) td{background:#f9f7f3}.meta{color:#888;font-size:.7rem;margin-bottom:18px;font-family:monospace}.disc{background:#fff7e6;border-left:3px solid #C8A84B;padding:10px 13px;font-size:.72rem;color:#555;margin-top:20px;line-height:1.6}p{font-size:.82rem;line-height:1.7;color:#5C5850;margin:4px 0}.wm{position:fixed;bottom:12px;right:12px;font-family:monospace;font-size:.52rem;color:#ddd;border:1px solid #eee;padding:2px 7px}</style>';
+    var html = '<!DOCTYPE html><html><head><title>' + (which === 'checklist' ? 'Day 0 Checklist' : 'Bank Summary') + ' - ' + d.product + '</title>' + s + '</head><body><div class="wm">(c) 2026 Karla Booe Advisory</div>';
+    if (which === 'checklist') {
+      html += '<h1>Day 0 Launch Checklist</h1><div class="meta">Program: ' + d.product + ' - ' + new Date().toLocaleDateString() + '</div>';
+      d.checklist.forEach(function(sec) {
+        html += '<h2>' + sec.phase + '</h2><table><thead><tr><th>#</th><th>Action</th><th>Detail</th><th>Owner</th><th>Done</th></tr></thead><tbody>';
+        sec.items.forEach(function(item, i) {
+          html += '<tr><td>' + (i + 1) + '</td><td><strong>' + item.action + '</strong></td><td>' + item.detail + '</td><td style="font-family:monospace;font-size:.66rem;color:#008080">' + item.owner + '</td><td style="text-align:center">\u2610</td></tr>';
+        });
+        html += '</tbody></table>';
+      });
+    } else {
+      html += '<h1>Sponsor Bank Compliance Summary</h1><div class="meta">Program: ' + d.product + ' - ' + d.operatingModel + ' - ' + new Date().toLocaleDateString() + '</div>';
+      d.bankSummary.sections.forEach(function(sec) {
+        html += '<h2>' + sec.title + '</h2>';
+        if (sec.paragraphs) sec.paragraphs.forEach(function(p) { html += '<p>' + p + '</p>'; });
+        if (sec.table) {
+          html += '<table><thead><tr>' + sec.table.headers.map(function(h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>';
+          sec.table.rows.forEach(function(row) { html += '<tr>' + row.map(function(c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; });
+          html += '</tbody></table>';
+        }
+      });
+      html += '<div style="margin-top:24px;border-top:1px solid #ddd;padding-top:16px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:12px"><div><div style="font-size:.65rem;color:#888;font-family:monospace;margin-bottom:32px">Program Manager / Compliance Officer</div><div style="border-top:1px solid #333;padding-top:3px;font-size:.68rem;color:#888">Signature / Date</div></div><div><div style="font-size:.65rem;color:#888;font-family:monospace;margin-bottom:32px">Sponsor Bank Compliance Contact</div><div style="border-top:1px solid #333;padding-top:3px;font-size:.68rem;color:#888">Signature / Date</div></div></div></div>';
+    }
+    html += '<div class="disc">AI-generated framework only. Review with a qualified compliance professional. (c) 2026 Karla Booe Advisory.</div></body></html>';
+    var w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    setTimeout(function() { w.print(); }, 500);
+  }
+
+  // Generate
+  document.getElementById('genBtn').addEventListener('click', function() {
+    var product = document.getElementById('fProduct').value;
+    var model = document.getElementById('fModel').value;
+    var segment = document.getElementById('fSegment').value;
+    var credit = document.getElementById('fCredit').value;
+    var regulator = document.getElementById('fReg').value;
+    var stage = document.getElementById('fStage').value;
+    var features = getFeatures();
+    var context = document.getElementById('fContext').value;
+
+    if (!product || !model || !segment || !credit || !regulator || !stage) {
+      var e = document.getElementById('errBox');
+      e.textContent = 'Please complete all six required fields before generating.';
+      e.classList.add('show');
+      return;
+    }
+    document.getElementById('errBox').classList.remove('show');
+    document.getElementById('formCard').style.display = 'none';
+    showLoader();
+
+    var featStr = features.length > 0 ? features.join(', ') : 'none';
+    var ctxStr = context.trim() || 'none';
+    var rawText = '';  // Store raw API response for debugging
+
+    // CALL 1: Matrix + Checklist
     var prompt1 = 'You are a senior compliance expert. Return ONLY valid JSON. No markdown. No backticks. No apostrophes in any string values - write around them.' +
       ' Generate a comprehensive compliance package for this program: Product=' + product + ', Model=' + model + ', Segment=' + segment + ', Regulator=' + regulator + ', Stage=' + stage + ', Features=' + featStr +
       '. Return this exact JSON structure with detailed, specific compliance content:' +
@@ -682,12 +942,12 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
     document.getElementById('loaderLbl').textContent = 'Building compliance matrix...';
 
     Promise.all([
-      fetch('/api/claude', {
+      fetch('https://kba-claude.karlabooe.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 3000, messages: [{ role: 'user', content: prompt1 }] })
+        body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 2500, messages: [{ role: 'user', content: prompt1 }] })
       }).then(function(r) { return r.json(); }),
-      fetch('/api/claude', {
+      fetch('https://kba-claude.karlabooe.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 1500, messages: [{ role: 'user', content: prompt2 }] })
@@ -716,7 +976,7 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
         operatingModel: data1.operatingModel,
         regulator: data1.regulator,
         regulations: data1.regulations,
-        checklist: data1.checklist,
+        checklist: data2.checklist,
         bankSummary: data2.bankSummary
       };
 
