@@ -608,58 +608,59 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
     var ctxStr = context.trim() || 'none';
     var rawText = '';  // Store raw API response for debugging
 
-    var prompt = 'Return ONLY valid JSON. No markdown. No backticks. No apostrophes in values.' +
-    ' Program: ' + product + ', ' + model + ', ' + segment + ', ' + credit + ', ' + regulator + ', ' + stage + ', features: ' + featStr + '.' +
-    ' Return this JSON with SHORT concise values (max 15 words per string value):' +
-    ' {"product":"' + product + '","operatingModel":"' + model + '","regulator":"' + regulator + '",' +
-    '"regulations":[' +
-    '{"name":"string","description":"string","priority":"high","requirements":[{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"}]},' +
-    '{"name":"string","description":"string","priority":"high","requirements":[{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"}]},' +
-    '{"name":"string","description":"string","priority":"med","requirements":[{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"}]}' +
-    '],' +
-    '"checklist":[' +
-    '{"phase":"Pre-Launch 90 Days","items":[{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"}]},' +
-    '{"phase":"Pre-Launch 30 Days","items":[{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"}]},' +
-    '{"phase":"Post-Launch 30 Days","items":[{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"}]}' +
-    '],' +
-    '"bankSummary":{"sections":[' +
-    '{"title":"Program Overview","paragraphs":["string"]},' +
-    '{"title":"Regulatory Scope","paragraphs":["string"]},' +
-    '{"title":"TSP vs Bank Responsibility Matrix","table":{"headers":["Area","TSP","Bank","Shared"],"rows":[["string","string","string","string"],["string","string","string","string"],["string","string","string","string"]]}},' +
-    '{"title":"Key Risk Factors","paragraphs":["string"]},' +
-    '{"title":"Ongoing Oversight","paragraphs":["string"]}' +
-    ']}}' +
-    '. Fill in all "string" values with real specific content for this ' + product + ' program. Keep each value under 15 words. No apostrophes.';
+    // CALL 1: Matrix + Checklist
+    var prompt1 = 'Return ONLY valid JSON. No markdown. No apostrophes. Short values under 12 words each.' +
+      ' Program: ' + product + ', ' + model + ', ' + segment + ', ' + regulator + ', ' + stage + '.' +
+      ' Return: {"product":"' + product + '","operatingModel":"' + model + '","regulator":"' + regulator + '",' +
+      '"regulations":[{"name":"REG","description":"DESC","priority":"high","requirements":[{"requirement":"R","detail":"D","control":"C","responsibility":"Compliance","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Bank","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Shared","evidence":"E"}]},{"name":"REG","description":"DESC","priority":"high","requirements":[{"requirement":"R","detail":"D","control":"C","responsibility":"Compliance","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Bank","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Shared","evidence":"E"}]},{"name":"REG","description":"DESC","priority":"med","requirements":[{"requirement":"R","detail":"D","control":"C","responsibility":"Compliance","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Bank","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Shared","evidence":"E"}]}],' +
+      '"checklist":[{"phase":"Pre-Launch 90 Days","items":[{"action":"A","detail":"D","owner":"Compliance"},{"action":"A","detail":"D","owner":"Legal"},{"action":"A","detail":"D","owner":"Tech"},{"action":"A","detail":"D","owner":"Ops"}]},{"phase":"Pre-Launch 30 Days","items":[{"action":"A","detail":"D","owner":"Compliance"},{"action":"A","detail":"D","owner":"Legal"},{"action":"A","detail":"D","owner":"Tech"},{"action":"A","detail":"D","owner":"Ops"}]},{"phase":"Post-Launch","items":[{"action":"A","detail":"D","owner":"Compliance"},{"action":"A","detail":"D","owner":"Legal"},{"action":"A","detail":"D","owner":"Tech"},{"action":"A","detail":"D","owner":"Ops"}]}]}' +
+      ' Replace REG with real regulation names, DESC with one sentence descriptions, R with requirement names, D with one sentence details, C with specific controls, E with evidence types. All for a ' + product + ' program.';
 
-    function fixJSON(str) {
-      // Remove control characters
-      str = str.replace(/[\x00-\x1F\x7F]/g, ' ');
-      // Fix apostrophes inside strings - replace with nothing
-      str = str.replace(/([a-z])'([a-z])/gi, '$1$2');
-      // Fix trailing commas
-      str = str.replace(/,\s*}/g, '}');
-      str = str.replace(/,\s*]/g, ']');
-      // Fix any remaining single quotes used as string delimiters
-      return str;
-    }
+    // CALL 2: Bank Summary
+    var prompt2 = 'Return ONLY valid JSON. No markdown. No apostrophes. Short values under 12 words.' +
+      ' Program: ' + product + ', ' + model + ', ' + regulator + '.' +
+      ' Return: {"bankSummary":{"sections":[{"title":"Program Overview","paragraphs":["DESC"]},{"title":"Regulatory Scope","paragraphs":["DESC"]},{"title":"TSP vs Bank Responsibility Matrix","table":{"headers":["Area","TSP","Bank","Shared"],"rows":[["CMS Program","Design and implement","Review and approve","Monitor outcomes"],["Consumer Complaints","Handle intake","Oversight","Trend reporting"],["Training","Execute program","Approve content","Track completion"],["Monitoring","Conduct testing","Review results","Remediation"]]}},{"title":"Key Risk Factors","paragraphs":["DESC"]},{"title":"Ongoing Oversight","paragraphs":["DESC"]}]}}' +
+      ' Replace DESC with real specific content for a ' + product + ' program.';
 
-    fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] })
-    })
-    .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
-    .then(function(result) {
+    document.getElementById('loaderLbl').textContent = 'Building compliance matrix...';
+
+    Promise.all([
+      fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1000, messages: [{ role: 'user', content: prompt1 }] })
+      }).then(function(r) { return r.json(); }),
+      fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 800, messages: [{ role: 'user', content: prompt2 }] })
+      }).then(function(r) { return r.json(); })
+    ])
+    .then(function(results) {
       hideLoader();
-      if (!result.ok) throw new Error((result.data.error && result.data.error.message) || 'API error');
-      rawText = result.data.content.map(function(b) { return b.text || ''; }).join('');
-      var clean = rawText.replace(/```json|```/g, '').trim();
-      var s = clean.indexOf('{');
-      var e = clean.lastIndexOf('}');
-      if (s > -1 && e > -1) clean = clean.substring(s, e + 1);
-      // Fix common JSON issues from AI output
-      clean = fixJSON(clean);
-      gData = JSON.parse(clean);
+      var text1 = results[0].content ? results[0].content.map(function(b) { return b.text || ''; }).join('') : '';
+      var text2 = results[1].content ? results[1].content.map(function(b) { return b.text || ''; }).join('') : '';
+      rawText = text1 + ' | ' + text2;
+
+      function extractJSON(str) {
+        str = str.replace(/```json|```/g, '').trim();
+        var s = str.indexOf('{'); var e = str.lastIndexOf('}');
+        if (s > -1 && e > -1) str = str.substring(s, e + 1);
+        return JSON.parse(str);
+      }
+
+      var data1 = extractJSON(text1);
+      var data2 = extractJSON(text2);
+
+      gData = {
+        product: data1.product,
+        operatingModel: data1.operatingModel,
+        regulator: data1.regulator,
+        regulations: data1.regulations,
+        checklist: data1.checklist,
+        bankSummary: data2.bankSummary
+      };
+
       renderMatrix(gData);
       renderChecklist(gData);
       renderBank(gData);
@@ -671,15 +672,12 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
     .catch(function(err) {
       hideLoader();
       document.getElementById('formCard').style.display = 'block';
-      var e = document.getElementById('errBox');
       console.error('FULL ERROR:', err);
       console.error('RAW TEXT:', rawText);
-      // Show first 200 chars of raw text to see what broke
-      var preview = rawText ? rawText.substring(0, 500) : 'no text';
-      console.error('TEXT PREVIEW:', preview);
+      var e = document.getElementById('errBox');
       e.textContent = 'Error: ' + err.message + '. Please try again.';
       e.classList.add('show');
-    });
+    });;
   });
 
 })();
