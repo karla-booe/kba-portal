@@ -477,13 +477,14 @@ const API_KEY = '';
 let generatedData = null;
 let checkTotal = 0, checkDone = 0;
 
-function togglePill(el, event) { 
-  event.preventDefault(); 
-  el.classList.toggle('on'); 
+function togglePill(el, event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  el.classList.toggle('on');
   const cb = el.querySelector('input');
   if (cb) cb.checked = el.classList.contains('on');
+  return false;
 }
-function getFeatures() { return [...document.querySelectorAll('#pills .pill.on input')].map(i => i.value); }
+function getFeatures() { return [...document.querySelectorAll('#pills .pill.on input')].map(i => i.value).filter(v => v); }
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
