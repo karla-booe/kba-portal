@@ -606,6 +606,7 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
 
     var featStr = features.length > 0 ? features.join(', ') : 'none';
     var ctxStr = context.trim() || 'none';
+    var rawText = '';  // Store raw API response for debugging
 
     var prompt = 'You are a compliance expert. Return ONLY a valid JSON object with NO text before or after it. Use ONLY double quotes. NEVER use apostrophes - write "does not" instead of "doesn\'t" and "it is" instead of "it\'s".\n\nProgram details: Product=' + product + ', Model=' + model + ', Segment=' + segment + ', CreditReporting=' + credit + ', Regulator=' + regulator + ', Stage=' + stage + ', Features=' + featStr + ', Context=' + ctxStr + '\n\nReturn this structure with real compliance content for this specific program:\n{"product":"' + product.replace(/"/g,'') + '","operatingModel":"' + model.replace(/"/g,'') + '","regulator":"' + regulator.replace(/"/g,'') + '","regulations":[{"name":"string","description":"string","priority":"high","requirements":[{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"}]},{"name":"string","description":"string","priority":"high","requirements":[{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"}]},{"name":"string","description":"string","priority":"med","requirements":[{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"}]},{"name":"string","description":"string","priority":"low","requirements":[{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"},{"requirement":"string","detail":"string","control":"string","responsibility":"string","evidence":"string"}]}],"checklist":[{"phase":"Pre-Launch 90 Days","items":[{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"}]},{"phase":"Pre-Launch 30 Days","items":[{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"}]},{"phase":"Post-Launch 30 Days","items":[{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"},{"action":"string","detail":"string","owner":"string"}]}],"bankSummary":{"sections":[{"title":"Program Overview","paragraphs":["string","string"]},{"title":"Regulatory Scope","paragraphs":["string"]},{"title":"TSP vs Bank Responsibility Matrix","table":{"headers":["Compliance Area","TSP Responsible","Bank Responsible","Shared"],"rows":[["string","string","string","string"],["string","string","string","string"],["string","string","string","string"],["string","string","string","string"]]}},{"title":"Key Risk Factors","paragraphs":["string","string"]},{"title":"Ongoing Oversight","paragraphs":["string"]}]}}\n\nReplace every "string" with real specific compliance content for a ' + product + ' program. Be specific and operational. No generic boilerplate.';
 
@@ -630,8 +631,8 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
     .then(function(result) {
       hideLoader();
       if (!result.ok) throw new Error((result.data.error && result.data.error.message) || 'API error');
-      var text = result.data.content.map(function(b) { return b.text || ''; }).join('');
-      var clean = text.replace(/```json|```/g, '').trim();
+      rawText = result.data.content.map(function(b) { return b.text || ''; }).join('');
+      var clean = rawText.replace(/```json|```/g, '').trim();
       var s = clean.indexOf('{');
       var e = clean.lastIndexOf('}');
       if (s > -1 && e > -1) clean = clean.substring(s, e + 1);
@@ -650,7 +651,12 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
       hideLoader();
       document.getElementById('formCard').style.display = 'block';
       var e = document.getElementById('errBox');
-      console.error('FULL ERROR:', err); console.error('RAW TEXT:', text); e.textContent = 'Error: ' + err.message + '. Please try again.';
+      console.error('FULL ERROR:', err);
+      console.error('RAW TEXT:', rawText);
+      // Show first 200 chars of raw text to see what broke
+      var preview = rawText ? rawText.substring(0, 500) : 'no text';
+      console.error('TEXT PREVIEW:', preview);
+      e.textContent = 'Error: ' + err.message + '. Please try again.';
       e.classList.add('show');
     });
   });
