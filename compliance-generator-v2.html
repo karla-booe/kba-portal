@@ -609,14 +609,71 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
     var rawText = '';  // Store raw API response for debugging
 
     // CALL 1: Matrix + Checklist
-    var prompt1 = 'Return ONLY valid JSON. No markdown. No apostrophes. Short values under 12 words each.' +
-      ' Program: ' + product + ', ' + model + ', ' + segment + ', ' + regulator + ', ' + stage + '.' +
-      ' Return: {"product":"' + product + '","operatingModel":"' + model + '","regulator":"' + regulator + '",' +
-      '"regulations":[{"name":"REG","description":"DESC","priority":"high","requirements":[{"requirement":"R","detail":"D","control":"C","responsibility":"Compliance","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Bank","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Shared","evidence":"E"}]},{"name":"REG","description":"DESC","priority":"high","requirements":[{"requirement":"R","detail":"D","control":"C","responsibility":"Compliance","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Bank","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Shared","evidence":"E"}]},{"name":"REG","description":"DESC","priority":"med","requirements":[{"requirement":"R","detail":"D","control":"C","responsibility":"Compliance","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Bank","evidence":"E"},{"requirement":"R","detail":"D","control":"C","responsibility":"Shared","evidence":"E"}]}],' +
-      '"checklist":[{"phase":"Pre-Launch 90 Days","items":[{"action":"A","detail":"D","owner":"Compliance"},{"action":"A","detail":"D","owner":"Legal"},{"action":"A","detail":"D","owner":"Tech"},{"action":"A","detail":"D","owner":"Ops"}]},{"phase":"Pre-Launch 30 Days","items":[{"action":"A","detail":"D","owner":"Compliance"},{"action":"A","detail":"D","owner":"Legal"},{"action":"A","detail":"D","owner":"Tech"},{"action":"A","detail":"D","owner":"Ops"}]},{"phase":"Post-Launch","items":[{"action":"A","detail":"D","owner":"Compliance"},{"action":"A","detail":"D","owner":"Legal"},{"action":"A","detail":"D","owner":"Tech"},{"action":"A","detail":"D","owner":"Ops"}]}]}' +
-      ' Replace REG with real regulation names, DESC with one sentence descriptions, R with requirement names, D with one sentence details, C with specific controls, E with evidence types. All for a ' + product + ' program.';
+    var prompt1 = 'You are a senior compliance expert. Return ONLY valid JSON. No markdown. No backticks. No apostrophes in any string values - write around them.' +
+      ' Generate a comprehensive compliance package for this program: Product=' + product + ', Model=' + model + ', Segment=' + segment + ', Regulator=' + regulator + ', Stage=' + stage + ', Features=' + featStr +
+      '. Return this exact JSON structure with detailed, specific compliance content:' +
+      '{' +
+        '"product":"' + product.replace(/"/g,'') + '",' +
+        '"operatingModel":"' + model.replace(/"/g,'') + '",' +
+        '"regulator":"' + regulator.replace(/"/g,'') + '",' +
+        '"regulations":[' +
+          '{"name":"[REGULATION NAME]","description":"[ONE SENTENCE WHAT IT GOVERNS]","priority":"high",' +
+            '"requirements":[' +
+              '{"requirement":"[NAME]","detail":"[SPECIFIC OBLIGATION]","control":"[OPERATIONAL CONTROL]","responsibility":"[TSP or Bank or Shared]","evidence":"[EVIDENCE TYPE]"},' +
+              '{"requirement":"[NAME]","detail":"[SPECIFIC OBLIGATION]","control":"[OPERATIONAL CONTROL]","responsibility":"[TSP or Bank or Shared]","evidence":"[EVIDENCE TYPE]"},' +
+              '{"requirement":"[NAME]","detail":"[SPECIFIC OBLIGATION]","control":"[OPERATIONAL CONTROL]","responsibility":"[TSP or Bank or Shared]","evidence":"[EVIDENCE TYPE]"}' +
+            ']},' +
+          '{"name":"[REGULATION NAME]","description":"[ONE SENTENCE]","priority":"high",' +
+            '"requirements":[' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"}' +
+            ']},' +
+          '{"name":"[REGULATION NAME]","description":"[ONE SENTENCE]","priority":"high",' +
+            '"requirements":[' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"}' +
+            ']},' +
+          '{"name":"[REGULATION NAME]","description":"[ONE SENTENCE]","priority":"med",' +
+            '"requirements":[' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"}' +
+            ']},' +
+          '{"name":"[REGULATION NAME]","description":"[ONE SENTENCE]","priority":"low",' +
+            '"requirements":[' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"},' +
+              '{"requirement":"[NAME]","detail":"[OBLIGATION]","control":"[CONTROL]","responsibility":"[OWNER]","evidence":"[EVIDENCE]"}' +
+            ']}' +
+        '],' +
+        '"checklist":[' +
+          '{"phase":"Pre-Launch 90 Days","items":[' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Legal"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Tech"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Ops"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"}' +
+          ']},' +
+          '{"phase":"Pre-Launch 30 Days","items":[' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Legal"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Tech"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Ops"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"}' +
+          ']},' +
+          '{"phase":"Post-Launch 30 Days","items":[' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Legal"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Tech"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Ops"},' +
+            '{"action":"[ACTION]","detail":"[DETAIL]","owner":"Compliance"}' +
+          ']}' +
+        ']' +
+      '}' +
+      '. Replace every bracketed placeholder with real specific compliance content. Be specific and operational. No apostrophes.';
 
-    // CALL 2: Bank Summary
     var prompt2 = 'Return ONLY valid JSON. No markdown. No apostrophes. Short values under 12 words.' +
       ' Program: ' + product + ', ' + model + ', ' + regulator + '.' +
       ' Return: {"bankSummary":{"sections":[{"title":"Program Overview","paragraphs":["DESC"]},{"title":"Regulatory Scope","paragraphs":["DESC"]},{"title":"TSP vs Bank Responsibility Matrix","table":{"headers":["Area","TSP","Bank","Shared"],"rows":[["CMS Program","Design and implement","Review and approve","Monitor outcomes"],["Consumer Complaints","Handle intake","Oversight","Trend reporting"],["Training","Execute program","Approve content","Track completion"],["Monitoring","Conduct testing","Review results","Remediation"]]}},{"title":"Key Risk Factors","paragraphs":["DESC"]},{"title":"Ongoing Oversight","paragraphs":["DESC"]}]}}' +
@@ -628,12 +685,12 @@ footer{background:var(--navy);border-top:1px solid var(--gold-dim);padding:20px 
       fetch('/api/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1000, messages: [{ role: 'user', content: prompt1 }] })
+        body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 3000, messages: [{ role: 'user', content: prompt1 }] })
       }).then(function(r) { return r.json(); }),
       fetch('/api/claude', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 800, messages: [{ role: 'user', content: prompt2 }] })
+        body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 1500, messages: [{ role: 'user', content: prompt2 }] })
       }).then(function(r) { return r.json(); })
     ])
     .then(function(results) {
