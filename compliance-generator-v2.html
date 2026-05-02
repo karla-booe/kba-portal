@@ -6,6 +6,7 @@
 <title>Compliance Package Generator — Karla Booe Advisory</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=JetBrains+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsonrepair@3/dist/browser/jsonrepair.umd.js"></script>
 <style>
 :root {
   --navy: #0C1C35;
@@ -745,13 +746,28 @@ Rules: 4 regulations, 3 requirements each. 3 checklist phases, 4 items each. Kee
     if (!res.ok) throw new Error(apiData.error?.message || 'API error');
     const text = apiData.content.map(b => b.text || '').join('');
     let clean = text.replace(/```json|```/g, '').trim();
-    // Find JSON object boundaries
     const jsonStart = clean.indexOf('{');
     const jsonEnd = clean.lastIndexOf('}');
     if (jsonStart !== -1 && jsonEnd !== -1) {
       clean = clean.substring(jsonStart, jsonEnd + 1);
     }
-    generatedData = JSON.parse(clean);
+    // Fix common JSON issues
+    clean = clean
+      .replace(/,\s*}/g, '}')
+      .replace(/,\s*]/g, ']')
+      .replace(/[ --]/g, ' ')
+      .replace(/
+/g, ' ')
+      .replace(/
+/g, ' ')
+      .replace(/	/g, ' ');
+    try {
+      generatedData = JSON.parse(clean);
+    } catch(e) {
+      // Try to repair malformed JSON
+      const repaired = jsonrepair(clean);
+      generatedData = JSON.parse(repaired);
+    }
     renderMatrix(generatedData);
     renderChecklist(generatedData);
     renderBank(generatedData);
